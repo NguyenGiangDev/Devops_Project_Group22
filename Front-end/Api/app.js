@@ -14,9 +14,10 @@ app.use(express.static(path.join(__dirname, "..", "public"))); // Phục vụ c�
 app.use(cookieParser()); // Sử dụng cookie-parser
 
 // URL của các dịch vụ khác (lấy từ biến môi trường hoặc mặc định)
-const EMPLOYEE_API_URL = process.env.EMPLOYEE_API_URL || 'http://localhost:3001';
-const DEPARTMENT_API_URL = process.env.DEPARTMENT_API_URL || 'http://localhost:3002';
-const AUTHENTICATION_API_URL = process.env.AUTHENTICATION_API_URL || 'http://localhost:3003';
+const EMPLOYEE_API_URL = process.env.EMPLOYEE_API_URL || 'http://employee-service:3001';
+const DEPARTMENT_API_URL = process.env.DEPARTMENT_API_URL || 'http://department-service:3002';
+const AUTHENTICATION_API_URL = process.env.AUTHENTICATION_API_URL || 'http://authentication-service:3003';
+
 
 // 📌 Healthcheck Endpoint
 app.get('/healthz', async (req, res) => {

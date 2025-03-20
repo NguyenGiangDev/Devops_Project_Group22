@@ -1,0 +1,26 @@
+replicaCount: 1
+
+image:
+  repository: 676206906655.dkr.ecr.ap-southeast-1.amazonaws.com/devops-project-group22
+  tag: latest
+  pullPolicy: Always
+
+services:
+  front_end:
+    name: front-end
+    port: 3000
+  authentication_service:
+    name: authentication-service
+    port: 3003
+  employee_service:
+    name: employee-service
+    port: 3001
+  department_service:
+    name: department-service
+    port: 3002
+  personal_service:
+    name: personal-service
+    port: 3004
+  salary_service:
+    name: salary-service
+    port: 3005
