@@ -5,78 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập</title>
     <style>
-        /* Đặt các kiểu cơ bản cho toàn bộ trang */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
-
+        
         body {
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-image: url('images/—Pngtree—illustration of a 3d render_13289194.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+            background-image: url('/images/imahe1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-direction: column;
+        }
+        
+        #changeBgBtn {
+            position: fixed;
+            top: 50%;
+            right: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            border-radius: 5px;
         }
 
-        /* Tạo container chính */
         .login-container {
-            width: 100%;
-            max-width: 400px;
+            margin-top: -100px;
+            width: 50%;
+            padding: 40px;
             background: #fff;
-            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Hộp login */
-        .login-box {
             text-align: center;
         }
 
-        h2 {
+        .header {
+            background-color: #0056b3;
+            color: #fff;
+            padding: 15px;
             font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
+            font-weight: bold;
+            border-radius: 8px;
         }
 
-        /* Nhóm nhập liệu */
+        .subtitle {
+            display: block;
+            font-size: 14px;
+        }
+
         .input-group {
             margin-bottom: 15px;
             text-align: left;
         }
 
         label {
-            display: block;
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
         }
 
-        input[type="email"],
-        input[type="password"] {
+        input {
             width: 100%;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 5px;
             background: #f9f9f9;
-            outline: none;
-            transition: border-color 0.3s;
         }
 
-        /* Khi người dùng nhấp vào input */
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border-color: #007bff;
-        }
-
-        /* Nút đăng nhập */
         .login-button {
             width: 100%;
             padding: 12px;
@@ -86,40 +88,65 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
 
-        /* Hiệu ứng hover cho nút đăng nhập */
         .login-button:hover {
             background-color: #0056b3;
         }
 
-        /* Responsive */
-        @media (max-width: 500px) {
-            .login-container {
-                padding: 15px;
-            }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
         }
     </style>
 </head>
 <body>
+    <button id="changeBgBtn">⮕</button>
     <div class="login-container">
-        <div class="login-box">
-            <h2>Đăng nhập</h2>
-            <form action="/api/auth/login" method="POST">
-                <div class="input-group">
-                    <label for="id">Mã nhân viên:</label>
-                    <input type="id" name="id" required placeholder="Nhập mã nhân viên được cấp">
-                </div>
-
-                <div class="input-group">
-                    <label for="password">Mật khẩu:</label>
-                    <input type="password" name="password" required placeholder="Nhập mật khẩu được cấp">
-                </div>
-
-                <button type="submit" class="login-button">Đăng nhập</button>
-            </form>
+        <div class="header">CÔNG TY OUTSOURCE-DEVELOP
+            <span class="subtitle">Khoa mạng máy tính & Truyền thông</span>
         </div>
+        <h2>Đăng nhập</h2>
+        <form action="/api/auth/login" method="POST">
+            <div class="input-group">
+                <label for="id">Mã nhân viên:</label>
+                <input type="text" name="id" required placeholder="Nhập mã nhân viên">
+            </div>
+            <div class="input-group">
+                <label for="password">Mật khẩu:</label>
+                <input type="password" name="password" required placeholder="Nhập mật khẩu">
+            </div>
+            <button type="submit" class="login-button">Đăng nhập</button>
+        </form>
     </div>
+    <footer>
+        <p>Nguyễn Đình Giang | UIT</p>
+        <p>Email: <a href="mailto:nguyendinhgiang2004tgdd@gmail.com">nguyendinhgiang2004tgdd@gmail.com</a></p>
+        <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
+    </footer>
+    <script>
+      const images = [
+    'imahe1.jpg',
+    'imahe2.jpg',
+    'imahe3.jpg'
+];
+
+let currentIndex = 0;
+const bgBtn = document.getElementById('changeBgBtn');
+const body = document.body;
+
+bgBtn.addEventListener('click', function () {
+    currentIndex = (currentIndex + 1) % images.length;
+    const newImage = `url('/images/${images[currentIndex]}')`;
+    body.style.transition = "background 0.5s ease-in-out";
+    body.style.backgroundImage = newImage;
+});
+    </script>
 </body>
 </html>

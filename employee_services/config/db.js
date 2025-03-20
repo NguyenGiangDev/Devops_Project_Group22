@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/your_database_name', {
+    await mongoose.connect('mongodb://localhost:27017/employee_database', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -12,5 +12,5 @@ const connectDB = async () => {
     process.exit(1); // Dừng ứng dụng nếu không kết nối được
   }
 };
-
+  
 module.exports = connectDB;

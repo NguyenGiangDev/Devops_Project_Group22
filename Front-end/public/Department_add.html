@@ -7,24 +7,23 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-image: url('images/—Pngtree—illustration of a 3d render_13289194.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+            background: url('/images/imahe3.jpg');
+            background-size: cover;
             padding: 20px;
-
+            margin: 0;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
+        .overlay {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
         h2 {
             text-align: center;
             margin-bottom: 20px;
+            color: #333;
         }
         .form-group {
             margin-bottom: 15px;
@@ -32,39 +31,47 @@
         label {
             display: block;
             margin-bottom: 5px;
+            color: #333;
         }
         input[type="text"],
         input[type="submit"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
         }
         input[type="submit"] {
-            background-color: #5cb85c;
+            background-color: #007bff;
             color: white;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         input[type="submit"]:hover {
-            background-color: #4cae4c;
+            background-color: #0056b3;
         }
         .buttons-container {
             margin-top: 20px;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
         }
         .department-button {
-            padding: 10px;
-            background-color: #007bff;
+            flex: 1 1 calc(33.333% - 20px);
+            padding: 12px;
+            background-color: #28a745;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            margin: 5px 0;
+            transition: background-color 0.3s;
+            text-align: center;
         }
         .department-button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
         table {
             width: 100%;
@@ -72,20 +79,37 @@
             margin-top: 20px;
         }
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #dee2e6;
         }
         th, td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #e9ecef;
+        }
+
+        /* Footer styles */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #343a40;
+            color: white;
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: #17a2b8;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="overlay">
     <h2>Danh Sách Phòng Ban</h2>
 
     <!-- Form tạo phòng ban sẽ được ẩn nếu không phải admin -->
@@ -93,6 +117,10 @@
         <div class="form-group">
             <label for="loaiPhong">Loại phòng ban:</label>
             <input type="text" id="loaiPhong" name="loaiPhong" required>
+            <label for="Manager">Trưởng phòng:</label>
+            <input type="text" id="Manager" name="Manager" required>
+            <label for="roomnumber">Số phòng:</label>
+            <input type="text" id="roomnumber" name="roomnumber" required>
         </div>
         <input type="submit" value="Tạo Phòng Ban">
     </form> 
@@ -135,53 +163,98 @@
         }
     }
 
-    function fetchDepartments() {
-        // Gửi yêu cầu GET đến API /api/department
-        fetch('/api/department')
-            .then(response => response.json())
-            .then(data => {
-                const buttonsContainer = document.getElementById('department-buttons');
-                buttonsContainer.innerHTML = ''; // Xóa nội dung cũ trước khi thêm mới
+    document.addEventListener('DOMContentLoaded', function() {
+    checkUserRole(); // Kiểm tra vai trò của người dùng trước khi hiển thị form và danh sách phòng ban
+    fetchDepartments(); // Gọi hàm để lấy danh sách phòng ban khi trang được tải
+});
 
-                // Duyệt qua danh sách phòng ban và tạo các nút tương ứng
-                data.forEach(department => {
-                    const button = document.createElement('button');
-                    button.className = 'department-button';
-                    button.textContent = department.loaiPhong; // Hiển thị loại phòng ban
-                    button.onclick = function() {
-                        // Gọi hàm khi nút được nhấn
-                        fetchEmployeesByDepartment(department.loaiPhong);
-                    };
-                    buttonsContainer.appendChild(button); // Thêm nút vào container
-                });
-            })
-            .catch(error => console.error('Lỗi khi lấy danh sách phòng ban:', error));
-    }
+let activeButton = null; // Biến để lưu nút đang được chọn
 
-    function fetchEmployeesByDepartment(departmentType) {
-        // Gửi yêu cầu POST đến /api/employees để lấy danh sách nhân viên theo loại phòng ban
-        fetch('/api/department/employee', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ loaiPhong: departmentType })
-        })
+function fetchDepartments() {
+    fetch('/api/department')
         .then(response => response.json())
         .then(data => {
-            displayEmployeeTable(data); // Hiển thị bảng danh sách nhân viên
+            const buttonsContainer = document.getElementById('department-buttons');
+            buttonsContainer.innerHTML = ''; // Xóa nội dung cũ trước khi thêm mới
+
+            data.forEach(department => {
+                const button = document.createElement('button');
+                button.className = 'department-button';
+
+                button.innerHTML = `
+                    <strong>Trưởng phòng:</strong> ${department.Manager} <br>
+                    <strong>Phòng ban:</strong> ${department.loaiPhong} <br>
+                    <strong>Số phòng:</strong> ${department.roomnumber}
+                `;
+
+                button.onclick = function() {
+                    if (activeButton) {
+                        activeButton.style.backgroundColor = "#28a745"; // Màu mặc định
+                    }
+                    button.style.backgroundColor = "#1e7e34"; // Màu đậm hơn cho nút được chọn
+                    activeButton = button;
+
+                    fetchEmployeesByDepartment(department.loaiPhong);
+                };
+
+                buttonsContainer.appendChild(button);
+            });
         })
-        .catch(error => console.error('Lỗi khi lấy danh sách nhân viên:', error));
-    }
+        .catch(error => console.error('Lỗi khi lấy danh sách phòng ban:', error));
+}
 
-    function displayEmployeeTable(employees) {
-        const container = document.getElementById('employee-table-container');
-        container.innerHTML = ''; // Xóa bảng cũ nếu có
-
-        if (employees.length === 0) {
-            container.innerHTML = '<p>Không có nhân viên nào trong phòng ban này.</p>';
+function fetchEmployeesByDepartment(departmentType) {
+    fetch('/api/department/employee', {
+        method: 'POST',  // Kiểm tra xem backend có hỗ trợ POST hay không
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ loaiPhong: departmentType })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.message || 'Lỗi không xác định'); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.length === 0) {
+            alert('Không có nhân viên nào trong phòng ban này.');
+            displayEmployeeTable([]); // Hiển thị bảng rỗng thay vì báo lỗi
             return;
         }
+        displayEmployeeTable(data);
+    })
+    .catch(error => {
+        console.error('Lỗi khi lấy danh sách nhân viên:', error.message);
+        alert('Không có nhân viên nào trong phòng ban này.');
+        displayEmployeeTable([]); // Truyền mảng rỗng để xóa bảng nếu lỗi xảy ra
+    });
+}
+
+
+     function displayEmployeeTable2(data) {
+        const container = document.getElementById('employee-table-container');
+    
+    // Xóa nội dung cũ trước khi cập nhật
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+     }
+    function displayEmployeeTable(employees) {
+    const container = document.getElementById('employee-table-container');
+    
+    // Xóa nội dung cũ trước khi cập nhật
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+
+    if (!employees || employees.length === 0) { 
+        const noDataMessage = document.createElement('p');
+        noDataMessage.textContent = 'Không có nhân viên nào trong phòng ban này.';
+        container.appendChild(noDataMessage);
+        return;
+    }
 
         const table = document.createElement('table');
         const thead = document.createElement('thead');
@@ -189,7 +262,7 @@
 
         // Tạo header của bảng
         const headerRow = document.createElement('tr');
-        ['Tên nhân viên', 'Chức vụ', 'Mức lương'].forEach(text => {
+        ['Tên nhân viên', 'phòng ban', 'Số điện thoại'].forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
             headerRow.appendChild(th);
@@ -199,7 +272,7 @@
         // Tạo các hàng dữ liệu
         employees.forEach(employee => {
             const row = document.createElement('tr');
-            ['name', 'position', 'salary'].forEach(key => {
+            ['name', 'position', 'phone'].forEach(key => {
                 const td = document.createElement('td');
                 td.textContent = employee[key];
                 row.appendChild(td);
@@ -213,6 +286,13 @@
     }
 
 </script>
+
+<!-- Footer -->
+<footer>
+    <p>Nguyễn Đình Giang | UIT</p>
+    <p>Email: <a href="mailto:nguyendinhgiang2004tgdd@gmail.com">nguyendinhgiang2004tgdd@gmail.com</a></p>
+    <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
+</footer>
 
 </body>
 </html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Nhân Viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            background-color: rgb(106, 0, 255);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+        }
+
+        .header {
+            background-color: rgb(85, 69, 158);
+            color: rgb(222, 218, 218);
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .info, .schedule, .chatbox {
+            margin: 20px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .btn:hover {
+            background-color: #218838;
+        }
+
+        #attendanceStatus {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .chatbox {
+            max-width: 400px;
+            margin: auto;
+        }
+
+        #chatMessages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        #chatInput {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">CÔNG TY OUTSOURCE-DEVELOP</div>
+    <div class="header">Trang Nhân Viên</div>
+    <div class="info">
+        <p><strong>Họ tên:</strong> <span id="fullname">Đang tải...</span></p>
+        <p><strong>Cấp bậc nhân viên:</strong> <span id="employeeId">Đang tải...</span></p>
+        <p><strong>Phòng ban:</strong> <span id="department">Đang tải...</span></p>
+    </div>
+    <button class="btn" id="checkInButton" onclick="checkIn()">Chấm Công</button>
+    <p id="attendanceStatus"></p>
+    <div class="schedule">
+        <h3>Lịch làm việc</h3>
+        <ul id="workSchedule"></ul>
+    </div>
+    <div class="chatbox">
+        <h3>Chatbox</h3>
+        <div id="chatMessages"></div>
+        <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." onkeypress="sendMessage(event)">
+    </div>
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        document.getElementById('fullname').textContent = getQueryParam('name') || 'Không có dữ liệu';
+        document.getElementById('employeeId').textContent = getQueryParam('id') || 'Không có dữ liệu';
+        document.getElementById('department').textContent = getQueryParam('department') || 'Không có dữ liệu';
+        
+        async function checkIn() {
+            const now = new Date();
+            const timeString = now.toLocaleString();
+            
+            const attendanceData = {
+                name: document.getElementById('fullname').textContent,
+                id: document.getElementById('employeeId').textContent,
+                checkInTime: timeString
+            };
+
+            try {
+                const response = await fetch('http://localhost:3004/Personal/checkin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(attendanceData)
+                });
+
+                if (!response.ok) throw new Error('Chấm công thất bại');
+                
+                document.getElementById("attendanceStatus").innerText = "Chấm công lúc: " + timeString;
+                alert("Chấm công thành công!");
+            } catch (error) {
+                console.error("Lỗi khi chấm công:", error);
+                alert("Chấm công thất bại. Vui lòng thử lại.");
+            }
+        }
+
+        function loadWorkSchedule() {
+            const schedule = [
+                "Thứ Hai: 8:00 - 17:00",
+                "Thứ Ba: 8:00 - 17:00",
+                "Thứ Tư: 8:00 - 17:00",
+                "Thứ Năm: 8:00 - 17:00",
+                "Thứ Sáu: 8:00 - 17:00",
+                "Thứ Bảy: 8:00 - 12:00",
+                "Chủ Nhật: Nghỉ"
+            ];
+            const scheduleList = document.getElementById('workSchedule');
+            schedule.forEach(day => {
+                const li = document.createElement('li');
+                li.textContent = day;
+                scheduleList.appendChild(li);
+            });
+        }
+
+        function sendMessage(event) {
+            if (event.key === 'Enter') {
+                const input = document.getElementById('chatInput');
+                const message = input.value.trim();
+                if (message) {
+                    const chatBox = document.getElementById('chatMessages');
+                    const p = document.createElement('p');
+                    p.textContent = "Bạn: " + message;
+                    chatBox.appendChild(p);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    input.value = '';
+                }
+            }
+        }
+
+        window.onload = loadWorkSchedule;
+    </script>
+</body>
+</html>

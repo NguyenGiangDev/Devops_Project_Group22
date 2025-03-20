@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang thêm nhân viên</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-image: url('images/—Pngtree—illustration of a 3d render_13289194.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-            margin: 0;
-            padding: 20px;
-        }
+      body {
+    font-family: Arial, sans-serif;
+    background-image: url('/images/imahe2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
         .container {
             background-color: white;
             padding: 20px;
@@ -79,11 +82,45 @@
         .delete-button:hover {
             background-color: #cc0000; /* Màu đỏ đậm hơn khi hover */
         }
-
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown:hover .dropdown-button {
+            background-color: #0056b3;
+        }
         /* Phân quyền admin */
         .admin-only {
             display: none;
         }
+        footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: auto; /* Đảm bảo footer luôn nằm ở dưới cùng */
+}
     </style>
 </head>
 <body>
@@ -91,19 +128,24 @@
         <h1>Trang quản lý nhân viên</h1>
 
         <!-- Form thêm nhân viên chỉ hiển thị nếu là admin -->
-        <form action="/api/employees" method="POST" class="employee-form admin-only">
+        <form action="/api/employees" method="POST" >
             <input type="text" id="name" name="name" placeholder="Nhập tên nhân viên" required>
             <input type="text" id="position" name="position" placeholder="Nhập phòng ban" required>
-            <input type="number" id="salary" name="salary" placeholder="Nhập mức lương" required>
+            <input type="number" id="phone" name="phone" placeholder="Nhập số điện thoại" required>
             <button type="submit">Thêm nhân viên</button>
-        </form>
+
 
         <button id="list-button">Hiện thị danh sách nhân viên</button>
         <button id="reset-button">Thu gọn</button>
-        <button id="sort-button">Sắp xếp nhân viên theo lương</button>
         <button id="department-button">Phòng ban</button>
-        <input type="search" id="search-box" placeholder="Tìm kiếm nhân viên theo tên">
-
+        <input type="search" id="search-box" placeholder="Tìm kiếm">
+        <div class="dropdown">
+            <button class="dropdown-button">Tìm kiếm theo</button>
+            <div class="dropdown-content">
+                <a href="#" id="search-name">Tìm kiếm nhân viên theo tên</a>
+                <a href="#" id="search-phone">Tìm kiếm nhân viên theo số điện thoại</a>  
+            </div>
+        </div>
         <div id="employee-list">
             <h2>Danh sách nhân viên</h2>
             <table id="employee-table">
@@ -111,8 +153,8 @@
                     <tr>
                         <th>Tên</th>
                         <th>Thuộc phòng ban</th>
-                        <th>Lương</th>
-                        <th class="admin-only">Xóa</th> <!-- Cột "Xóa" chỉ dành cho admin -->
+                        <th>Số điện thoại</th>
+                      
                     </tr>
                 </thead>
                 <tbody>
@@ -121,7 +163,11 @@
             </table>
         </div>
     </div>
-
+    <footer>
+        <p>Nguyễn Đình Giang | UIT</p>
+        <p>Email: <a href="mailto:nguyendinhgiang2004tgdd@gmail.com">nguyendinhgiang2004tgdd@gmail.com</a></p>
+        <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
+        </footer>
     <script>
         let employees = []; // Biến lưu trữ danh sách nhân viên
 
@@ -129,7 +175,7 @@
             // Hiển thị danh sách nhân viên và các nút
             document.getElementById('employee-list').style.display = 'block';
             document.getElementById('reset-button').style.display = 'inline-block';
-            document.getElementById('sort-button').style.display = 'inline-block';
+            
             document.getElementById('search-box').style.display = 'block';
 
             loadEmployees(); // Gọi hàm để tải danh sách nhân viên
@@ -166,7 +212,7 @@
                     console.error('Error fetching employee data:', error);
                 });
         }
-
+        
         function renderEmployeeList(data) {
     const employeeTable = document.querySelector('#employee-table tbody');
     employeeTable.innerHTML = ''; // Xóa sạch dữ liệu cũ trước khi thêm mới
@@ -183,7 +229,7 @@
         positionCell.textContent = employee.position;
 
         const salaryCell = document.createElement('td');
-        salaryCell.textContent = employee.salary;
+        salaryCell.textContent = employee.phone;
 
         // Thêm hàng vào bảng
         row.appendChild(nameCell);
@@ -238,30 +284,33 @@
             document.getElementById('search-box').style.display = 'none'; // Ẩn ô tìm kiếm
         });
 
-        // Tìm kiếm nhân viên theo tên
-        document.getElementById('search-box').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase(); // Lấy giá trị từ ô tìm kiếm
+        let searchType = 'name'; // Mặc định tìm kiếm theo tên
 
-            // Lọc danh sách nhân viên theo tên
-            const filteredEmployees = employees.filter(employee => 
-                employee.name.toLowerCase().includes(searchTerm)
-            );
+// Chọn kiểu tìm kiếm
+document.getElementById('search-name').addEventListener('click', function() {
+    searchType = 'name';
+    document.getElementById('search-box').placeholder = "Nhập tên nhân viên...";
+});
 
-            renderEmployeeList(filteredEmployees); // Hiển thị lại danh sách sau khi lọc
-        });
-    // Sắp xếp danh sách nhân viên theo lương giảm dần
-    document.getElementById('sort-button').addEventListener('click', function() {
-            const sortedEmployees = employees.slice().sort((a, b) => b.salary - a.salary);
-            renderEmployeeList(sortedEmployees); // Hiển thị lại danh sách đã sắp xếp
-        });
+document.getElementById('search-phone').addEventListener('click', function() {
+    searchType = 'phone';
+    document.getElementById('search-box').placeholder = "Nhập số điện thoại...";
+});
 
-        // Đoạn mã JavaScript để kiểm tra và hiển thị thông báo lỗi hoặc thành công
-        function getParameterByName(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-        // Lấy giá trị của cookie theo tên
-      // Hàm lấy giá trị của cookie
+// Lắng nghe sự kiện nhập vào ô tìm kiếm
+document.getElementById('search-box').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase(); // Lấy giá trị nhập vào
+
+    // Lọc danh sách nhân viên dựa trên kiểu tìm kiếm
+    const filteredEmployees = employees.filter(employee => 
+        searchType === 'name' 
+            ? employee.name.toLowerCase().includes(searchTerm) 
+            : employee.phone.includes(searchTerm) // Kiểm tra số điện thoại
+    );
+
+    renderEmployeeList(filteredEmployees); // Hiển thị kết quả lọc
+});
+    
 // Lấy giá trị của cookie theo tên
 function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -302,5 +351,7 @@ document.addEventListener('DOMContentLoaded', checkAdmin);
         // Gọi hàm kiểm tra admin khi trang tải
         checkAdmin();
     </script>
+    
+
 </body>
 </html>

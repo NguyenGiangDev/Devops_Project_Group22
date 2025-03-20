@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Nhân Viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            background-color: rgb(106, 0, 255);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+        }
+        .header {
+            background-color: rgb(85, 69, 158);
+            color: rgb(222, 218, 218);
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .form-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .input-field {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+            margin-right: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .table-container {
+            margin: 20px auto;
+            width: 80%;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #6c5ce7;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">CÔNG TY OUTSOURCE-DEVELOP</div>
+    <div class="header">Tính lương nhân viên</div>
+
+    <div class="form-container">
+        <input type="number" id="dailySalary" class="input-field" placeholder="Nhập lương 1 ngày">
+        <button class="btn" onclick="calculateSalary()">Tính</button>
+        <button class="btn" onclick="exportToCSV()">Xuất file</button>
+    </div>
+
+    <div class="table-container">
+        <table id="salaryTable">
+            <thead>
+                <tr>
+                    <th>Tên Nhân Viên</th>
+                    <th>Số Ngày Công</th>
+                    <th>Lương (VND)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dữ liệu sẽ được cập nhật ở đây -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function calculateSalary() {
+            const dailySalary = document.getElementById("dailySalary").value;
+            if (!dailySalary) {
+                alert("Vui lòng nhập lương 1 ngày");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:3005/salary", {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const tableBody = document.querySelector("#salaryTable tbody");
+                    tableBody.innerHTML = "";
+                    data.forEach(employee => {
+                        const totalSalary = employee.workDays * dailySalary;
+                        const row = `
+                            <tr>
+                                <td>${employee.name}</td>
+                                <td>${employee.workDays}</td>
+                                <td>${totalSalary.toLocaleString()} VND</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    alert("Lỗi khi lấy dữ liệu từ server.");
+                }
+            } catch (error) {
+                alert("Không thể kết nối đến server.");
+            }
+        }
+
+        function exportToCSV() {
+            let table = document.getElementById("salaryTable");
+            let rows = table.rows;
+            let csvContent = "";
+            
+            for (let i = 0; i < rows.length; i++) {
+                let cols = rows[i].querySelectorAll("td, th");
+                let rowData = [];
+                cols.forEach(col => rowData.push(col.innerText));
+                csvContent += rowData.join(",") + "\n";
+            }
+
+            let blob = new Blob([csvContent], { type: "text/csv" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "bang_luong.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

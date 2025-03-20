@@ -9,8 +9,8 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  salary: {
-    type: Number,
+  phone: {
+    type: String,
     required: true
   }
 });

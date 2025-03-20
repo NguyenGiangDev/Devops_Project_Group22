@@ -5,7 +5,14 @@ const DepartmentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
- 
+  Manager: {
+    type: String,
+    required: true
+  },
+  roomnumber: {
+    type: String,
+    required: true
+  }
 });
 
 const Department = mongoose.model('Department', DepartmentSchema);
