@@ -111,32 +111,37 @@
         document.getElementById('employeeId').textContent = getQueryParam('id') || 'Không có dữ liệu';
         document.getElementById('department').textContent = getQueryParam('department') || 'Không có dữ liệu';
         
-        async function checkIn() {
-            const now = new Date();
-            const timeString = now.toLocaleString();
-            
-            const attendanceData = {
-                name: document.getElementById('fullname').textContent,
-                id: document.getElementById('employeeId').textContent,
-                checkInTime: timeString
-            };
+          async function checkIn() {
+      const now = new Date();
+      const timeString = now.toLocaleString();
+      
+      const attendanceData = {
+          name: document.getElementById('fullname').textContent,
+          id: document.getElementById('employeeId').textContent,
+          checkInTime: timeString
+      };
 
-            try {
-                const response = await fetch('http:/personal-service:3004/Personal/checkin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(attendanceData)
-                });
+      try {
+          const response = await fetch('/checkin', {  // Gửi yêu cầu đến backend (Express)
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(attendanceData)
+          });
 
-                if (!response.ok) throw new Error('Chấm công thất bại');
-                
-                document.getElementById("attendanceStatus").innerText = "Chấm công lúc: " + timeString;
-                alert("Chấm công thành công!");
-            } catch (error) {
-                console.error("Lỗi khi chấm công:", error);
-                alert("Chấm công thất bại. Vui lòng thử lại.");
-            }
-        }
+          if (!response.ok) throw new Error('Chấm công thất bại');
+          
+          const data = await response.json();
+          document.getElementById("attendanceStatus").innerText = "Chấm công lúc: " + timeString;
+          alert("Chấm công thành công!");
+      } catch (error) {
+          console.error("Lỗi khi chấm công:", error);
+          alert("Chấm công thất bại. Vui lòng thử lại.");
+      }
+  }      
+
+
+
+
 
         function loadWorkSchedule() {
             const schedule = [

@@ -101,41 +101,44 @@
     </div>
 
     <script>
-        async function calculateSalary() {
-            const dailySalary = document.getElementById("dailySalary").value;
-            if (!dailySalary) {
-                alert("Vui lòng nhập lương 1 ngày");
-                return;
-            }
+          async function calculateSalary() {
+      const dailySalary = document.getElementById("dailySalary").value;
+      if (!dailySalary) {
+          alert("Vui lòng nhập lương 1 ngày");
+          return;
+      }
 
-            try {
-                const response = await fetch("http://salary-service:3005/salary", {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" }
-                });
+      try {
+          const response = await fetch('/calculate-salary', {  // Gửi yêu cầu đến backend (Express)
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ dailySalary })
+          });
 
-                const data = await response.json();
-                if (response.ok) {
-                    const tableBody = document.querySelector("#salaryTable tbody");
-                    tableBody.innerHTML = "";
-                    data.forEach(employee => {
-                        const totalSalary = employee.workDays * dailySalary;
-                        const row = `
-                            <tr>
-                                <td>${employee.name}</td>
-                                <td>${employee.workDays}</td>
-                                <td>${totalSalary.toLocaleString()} VND</td>
-                            </tr>
-                        `;
-                        tableBody.innerHTML += row;
-                    });
-                } else {
-                    alert("Lỗi khi lấy dữ liệu từ server.");
-                }
-            } catch (error) {
-                alert("Không thể kết nối đến server.");
-            }
-        }
+          if (response.ok) {
+              const data = await response.json();
+              const tableBody = document.querySelector("#salaryTable tbody");
+              tableBody.innerHTML = "";
+              data.forEach(employee => {
+                  const totalSalary = employee.workDays * dailySalary;
+                  const row = `
+                      <tr>
+                          <td>${employee.name}</td>
+                          <td>${employee.workDays}</td>
+                          <td>${totalSalary.toLocaleString()} VND</td>
+                      </tr>
+                  `;
+                  tableBody.innerHTML += row;
+              });
+          } else {
+              alert("Lỗi khi lấy dữ liệu từ server.");
+          }
+      } catch (error) {
+          alert("Không thể kết nối đến server.");
+      }
+  }      
+
+              
 
         function exportToCSV() {
             let table = document.getElementById("salaryTable");

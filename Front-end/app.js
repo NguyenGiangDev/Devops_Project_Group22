@@ -10,15 +10,15 @@ const path = require('path');
 // Middleware để parse dữ liệu từ biểu mẫu
 app.use(express.json()); // Để xử lý các yêu cầu có body dưới dạng JSON
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "..", "public"))); // Phục vụ các tệp tĩnh (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser()); // Sử dụng cookie-parser
 
 // URL của các dịch vụ khác (lấy từ biến môi trường hoặc mặc định)
 const EMPLOYEE_API_URL = process.env.EMPLOYEE_API_URL || 'http://employee-service:3001';
 const DEPARTMENT_API_URL = process.env.DEPARTMENT_API_URL || 'http://department-service:3002';
 const AUTHENTICATION_API_URL = process.env.AUTHENTICATION_API_URL || 'http://authentication-service:3003';
-
-
+const PERSONAL_API_URL = process.env.PERSONAL_API_URL || 'http://personal-service:3004';
+const SALARY_API_URL = process.env.SALARY_API_URL || 'http://salary-service:3005';
 // 📌 Healthcheck Endpoint
 app.get('/healthz', async (req, res) => {
   const services = {
@@ -122,7 +122,7 @@ app.get('/api/department', (req, res) => {
 
 // Route cho trang chính, hiển thị form thêm phòng ban
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'Authentication.html'));
+  res.sendFile(path.join(__dirname, 'public', 'Authentication.html'));
 });
 
 // Route để lấy nhân viên theo phòng ban
@@ -181,7 +181,64 @@ app.post('/api/auth/login', (req, res) => {
   });
 
 });
+// Route để nhận yêu cầu check-in từ frontend
+app.post('/checkin', async (req, res) => {
+    const { name, id, checkInTime } = req.body;  // Lấy dữ liệu từ frontend gửi lên
 
+    const attendanceData = {
+        name,
+        id,
+        checkInTime
+    };
+
+    try {
+        // Gửi yêu cầu POST tới personal-service để chấm công
+        const response = await axios.post(`${PERSONAL_API_URL}/Personal/checkin`, attendanceData);
+        
+        // Nếu personal-service trả kết quả thành công, gửi phản hồi lại frontend
+        if (response.status === 200) {
+            res.json({ message: "Chấm công thành công!" });
+        } else {
+            res.status(500).json({ error: "Chấm công thất bại" });
+        }
+    } catch (error) {
+        console.error("Lỗi khi gọi personal-service:", error);
+        res.status(500).json({ error: "Lỗi khi chấm công. Vui lòng thử lại." });
+    }
+});
+// Route để tính lương cho nhân viên
+app.post('/calculate-salary', async (req, res) => {
+    const { dailySalary } = req.body;  // Lấy lương 1 ngày từ frontend gửi lên
+
+    if (!dailySalary) {
+        return res.status(400).json({ error: 'Lương 1 ngày không hợp lệ' });
+    }
+
+    try {
+        // Gửi yêu cầu GET tới salary-service để lấy dữ liệu nhân viên
+        const response = await axios.get(`${SALARY_API_URL}/salary`);
+
+        // Kiểm tra dữ liệu trả về từ salary-service
+        if (response.status === 200 && Array.isArray(response.data)) {
+            const salaryData = response.data.map(employee => {
+                const totalSalary = employee.workDays * dailySalary;
+                return {
+                    name: employee.name,
+                    workDays: employee.workDays,
+                    totalSalary
+                };
+            });
+
+            // Trả dữ liệu lương đã tính toán cho frontend
+            res.json(salaryData);
+        } else {
+            res.status(500).json({ error: 'Lỗi khi lấy dữ liệu từ salary-service' });
+        }
+    } catch (error) {
+        console.error('Lỗi khi gọi salary-service:', error);
+        res.status(500).json({ error: 'Không thể kết nối đến salary-service' });
+    }
+});
 
 // Chạy server
 // Chạy server

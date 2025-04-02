@@ -7,8 +7,8 @@ WORKDIR /usr/src/app
 # Sao chép file package.json và package-lock.json để cài đặt các phụ thuộc
 COPY package*.json ./
 
-# Cài đặt các phụ thuộc chỉ dành cho production
-RUN npm install --only=production
+# Cài đặt dependencies nhưng chỉ giữ lại dependencies cần thiết cho production
+RUN npm install --production
 
 # Sao chép toàn bộ mã nguồn vào thư mục làm việc
 COPY . .

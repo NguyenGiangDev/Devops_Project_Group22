@@ -1,0 +1,39 @@
+{{- range $key, $service := .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $service.name }}
+spec:
+  replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $service.name }}
+    spec:
+      containers:
+        - name: {{ $service.name }}
+          image: "{{ $service.image }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ $service.port }}
+          {{- if and (ne $service.name "mongo") (ne $service.name "front-end") }}
+          env:
+            - name: MONGO_URI
+              value: {{ if eq $service.name "personal-service" }} "mongodb://mongo:27017/salary-service_database" {{ else }} "mongodb://mongo:27017/{{ $service.name }}_database" {{ end }}
+          {{- end }}
+          {{- if eq $service.name "mongo" }}
+          volumeMounts:
+            - name: mongo-storage
+              mountPath: /data/db
+          {{- end }}
+      {{- if eq $service.name "mongo" }}
+      volumes:
+        - name: mongo-storage
+          emptyDir: {}
+      {{- end }}
+{{- end }}
+
