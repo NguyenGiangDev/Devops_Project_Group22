@@ -10,4 +10,8 @@ services:
     port: 3000
     image: "nguyengianguit/demo_microservices:front-end-latest"
 
+  mongo:
+    name: mongo
+    port: 27017
+    image: "mongo:latest"
 
