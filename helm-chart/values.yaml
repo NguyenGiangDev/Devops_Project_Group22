@@ -10,32 +10,4 @@ services:
     port: 3000
     image: "nguyengianguit/demo_microservices:front-end-latest"
 
-  authentication_service:
-    name: authentication-service
-    port: 3003
-    image: "nguyengianguit/demo_microservices:authentication_services-latest"
 
-  employee_service:
-    name: employee-service
-    port: 3001
-    image: "nguyengianguit/demo_microservices:employee_services-latest"
-
-  department_service:
-    name: department-service
-    port: 3002
-    image: "nguyengianguit/demo_microservices:department_services-latest"
-
-  personal_service:
-    name: personal-service
-    port: 3004
-    image: "nguyengianguit/demo_microservices:personal_services-latest"
-
-  salary_service:
-    name: salary-service
-    port: 3005
-    image: "nguyengianguit/demo_microservices:salary_services-latest"
-
-  mongo:
-    name: mongo
-    port: 27017
-    image: "mongo:latest"
