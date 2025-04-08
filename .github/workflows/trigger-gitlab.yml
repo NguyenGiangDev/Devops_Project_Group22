@@ -1,0 +1,16 @@
+name: Trigger GitLab CI
+
+on:
+  push:
+    branches:
+      - main  # hoặc tên branch bạn muốn
+
+jobs:
+  trigger-gitlab-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call GitLab CI/CD Trigger API
+        run: |
+          curl -X POST https://gitlab.com/api/v4/projects/68740717/trigger/pipeline \
+            -F token=glptt-56def8f407c60a796c2aeab772dcaf7a65bccaec \
+            -F ref=main
