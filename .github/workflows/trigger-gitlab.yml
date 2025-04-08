@@ -3,7 +3,7 @@ name: Trigger GitLab Pipeline
 on:
   push:
     branches:
-      - main  # hoặc branch bạn muốn theo dõi
+      - master  # hoặc branch bạn muốn theo dõi
 
 jobs:
   trigger:
