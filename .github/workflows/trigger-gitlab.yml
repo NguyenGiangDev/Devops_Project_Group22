@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger GitLab Pipeline via API
+        env:
+          CI_TRIGGER_TOKEN: ${{ secrets.GITLAB_TRIGGER_TOKEN }}
         run: |
           curl -X POST https://gitlab.com/api/v4/projects/68740717/trigger/pipeline \
             -H "Content-Type: application/json" \
-            -d '{
-              "token": "${{ secrets.GITLAB_TRIGGER_TOKEN }}",
-              "ref": "main"
-            }'
-
+            -d "{\"token\":\"$CI_TRIGGER_TOKEN\", \"ref\":\"main\"}"
