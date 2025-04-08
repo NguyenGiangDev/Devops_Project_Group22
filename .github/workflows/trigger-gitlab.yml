@@ -3,7 +3,7 @@ name: Trigger GitLab CI
 on:
   push:
     branches:
-      - main  # hoặc tên branch bạn muốn
+      - master  # hoặc tên branch bạn muốn
 
 jobs:
   trigger-gitlab-pipeline:
