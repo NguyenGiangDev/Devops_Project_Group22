@@ -1,17 +1,20 @@
-name: Trigger GitLab Pipeline
+name: trigger-gitlab-pipeline
 
 on:
   push:
     branches:
-      - master  # hoặc branch bạn muốn theo dõi
+      - master
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Trigger GitLab Pipeline
+      - name: Trigger GitLab Pipeline via API
         run: |
           curl -X POST https://gitlab.com/api/v4/projects/68740717/trigger/pipeline \
-            -F token=${{ secrets.GITLAB_TRIGGER_TOKEN }} \
-            -F ref=master
+            -H "Content-Type: application/json" \
+            -d '{
+              "token": "${{ secrets.GITLAB_TRIGGER_TOKEN }}",
+              "ref": "main"
+            }'
+
