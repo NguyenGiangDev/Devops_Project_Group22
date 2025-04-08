@@ -14,5 +14,6 @@ jobs:
           CI_TRIGGER_TOKEN: ${{ secrets.GITLAB_TRIGGER_TOKEN }}
         run: |
           curl -X POST https://gitlab.com/api/v4/projects/68740717/trigger/pipeline \
-            -H "Content-Type: application/json" \
-            -d "{\"token\":\"$CI_TRIGGER_TOKEN\", \"ref\":\"main\"}"
+            -F token=$CI_TRIGGER_TOKEN \
+            -F ref=main
+
