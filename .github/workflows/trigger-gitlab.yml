@@ -1,19 +1,91 @@
-name: trigger-gitlab-pipeline
+name: CI - Build, Push Docker & Update Helm Values
 
 on:
   push:
     branches:
-      - master 
+      - main
+
+env:
+  DOCKER_BUILDKIT: 0
+  DOCKERHUB_USER: nguyengianguit
+  HELM_REPO: https://gitlab.com/devops_group22/ci-runner-github.git
+  IMAGE_TAG: v${{ github.run_id }}
 
 jobs:
-  trigger:
+  build-and-push:
+    name: Build and Push Docker Images
     runs-on: ubuntu-latest
+
     steps:
-      - name: Trigger GitLab Pipeline via API
-        env:
-          CI_TRIGGER_TOKEN: ${{ secrets.GITLAB_TRIGGER_TOKEN }}
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Disable Docker BuildKit (Optional Safety)
+        run: echo "DOCKER_BUILDKIT=0" >> $GITHUB_ENV
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker images
         run: |
-          curl -X POST https://gitlab.com/api/v4/projects/68740717/trigger/pipeline \
-            -F token=$CI_TRIGGER_TOKEN \
-            -F ref=main
+          echo "${{ env.IMAGE_TAG }}" > image_tag.txt
+          for SERVICE in Front-end Authentication_services department_services employee_services Personal_services salary_services; do
+            IMAGE_NAME=$(echo $SERVICE | tr '_' '-' | tr '[:upper:]' '[:lower:]')
+            echo "🚀 Building $SERVICE → $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}"
+            docker build -t $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} ./$SERVICE
+            docker push $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
+          done
+
+      - name: Upload image tag artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-tag
+          path: image_tag.txt
+
+  update-helm:
+    name: Update Helm values.yaml in GitLab repo
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Download image tag
+        uses: actions/download-artifact@v3
+        with:
+          name: image-tag
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl yq
+
+      - name: Clone Helm chart repo
+        run: |
+          git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_TOKEN }}@gitlab.com/devops_group22/ci-runner-github.git helm-chart
+          cp image_tag.txt helm-chart/
+
+      - name: Update values.yaml
+        run: |
+          cd helm-chart/helm-chart
+          IMAGE_TAG=$(cat ../image_tag.txt)
+          for SERVICE in front_end authentication_service department_service employee_service personal_service salary_service; do
+            IMAGE_NAME=$(echo $SERVICE | sed 's/_service//' | sed 's/_/-/g')
+            echo "🔧 Updating $SERVICE → $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
+            yq -i ".services.${SERVICE}.image.repository = \"$DOCKERHUB_USER/$IMAGE_NAME\"" values.yaml
+            yq -i ".services.${SERVICE}.image.tag = \"$IMAGE_TAG\"" values.yaml
+          done
+
+      - name: Commit and push changes
+        run: |
+          cd helm-chart
+          git config user.name "${{ secrets.GIT_USERNAME }}"
+          git config user.email "ci-bot@example.com"
+          git add .
+          git commit -m "Update image tag to $IMAGE_TAG [skip ci]" || echo "Nothing to commit"
+          git push origin main
 
