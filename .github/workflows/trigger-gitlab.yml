@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Disable Docker BuildKit (Optional Safety)
         run: echo "DOCKER_BUILDKIT=0" >> $GITHUB_ENV
@@ -43,7 +43,7 @@ jobs:
           done
 
       - name: Upload image tag artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: image-tag
           path: image_tag.txt
