@@ -43,7 +43,7 @@ jobs:
           done
 
       - name: Upload image tag artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: image-tag
           path: image_tag.txt
