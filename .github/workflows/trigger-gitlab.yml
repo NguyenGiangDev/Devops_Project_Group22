@@ -76,8 +76,8 @@ jobs:
           for SERVICE in front_end authentication_service department_service employee_service personal_service salary_service; do
             IMAGE_NAME=$(echo $SERVICE | sed 's/_service//' | sed 's/_/-/g')
             echo "🔧 Updating $SERVICE → $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
-            yq -i ".services.${SERVICE}.image.repository = \"$DOCKERHUB_USER/$IMAGE_NAME\"" values.yaml
-            yq -i ".services.${SERVICE}.image.tag = \"$IMAGE_TAG\"" values.yaml
+            yq -i -y ".services.${SERVICE}.image.repository = \"$DOCKERHUB_USER/$IMAGE_NAME\"" values.yaml
+            yq -i -y ".services.${SERVICE}.image.tag = \"$IMAGE_TAG\"" values.yaml
           done
 
       - name: Commit and push changes
