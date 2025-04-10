@@ -73,7 +73,7 @@ jobs:
         run: |
           cd helm-chart/helm-chart
           IMAGE_TAG=$(cat ../image_tag.txt)
-          for SERVICE in front_end authentication_service department_service employee_service personal_service salary_service; do
+          for SERVICE in front_end authentication_services department_services employee_services personal_services salary_services; do
             IMAGE_NAME=$(echo $SERVICE | sed 's/_/-/g')
             echo "🔧 Updating $SERVICE → $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
             yq -i -y ".services.${SERVICE}.image.repository = \"$DOCKERHUB_USER/$IMAGE_NAME\"" values.yaml
