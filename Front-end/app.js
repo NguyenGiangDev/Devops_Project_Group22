@@ -196,10 +196,10 @@ app.post('/checkin', async (req, res) => {
         const response = await axios.post(`${PERSONAL_API_URL}/Personal/checkin`, attendanceData);
         
         // Nếu personal-service trả kết quả thành công, gửi phản hồi lại frontend
-        if (response.status === 200) {
-            res.json({ message: "Chấm công thành công!" });
+        if (response.status === 201) {
+             res.status(201).json({ message: "Chấm công thành công!" });
         } else {
-            res.status(500).json({ error: "Chấm công thất bại" });
+            res.status(409).json({ error: "Bạn đã chấm công hôm nay rồi !!" });
         }
     } catch (error) {
         console.error("Lỗi khi gọi personal-service:", error);
