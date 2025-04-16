@@ -94,7 +94,7 @@ router.get('/', async (req, res) => {
       return res.status(400).json({ message: 'Phòng ban (department) là bắt buộc.' });
     }
 
-    const EmployeeApiUrl = 'http://employee-service:3001';
+    const EmployeeApiUrl = 'http://employee-services:3001';
 
     try {
       // Gửi yêu cầu đến employee_services để lấy danh sách nhân viên

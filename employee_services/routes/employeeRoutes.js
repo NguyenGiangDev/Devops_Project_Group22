@@ -69,7 +69,7 @@ router.post('/', async (req, res) => {
 
   try {
     // Thay localhost bằng service name `department-service` trong Docker Compose
-    const departmentServiceURL = 'http://department-service:3002';
+    const departmentServiceURL = 'http://department-services:3002';
 
     // Gửi yêu cầu xác minh phòng ban
     const response = await axios.get(`${departmentServiceURL}/department/check?position=${position}`,);
