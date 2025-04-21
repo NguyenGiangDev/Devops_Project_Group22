@@ -2,7 +2,7 @@
 
 # Tắt BuildKit để tránh lỗi buildx
 export DOCKER_BUILDKIT=0  
-echo "🔧 BuildKit đã bị tắt để đảm bảo quá trình build chạy ổn định. Demo devops 6/5/2025"
+echo "🔧 BuildKit đã bị tắt để đảm bảo quá trình build chạy ổn định. Demo devops nhóm 22"
 
 # Docker Hub username
 DOCKER_USER="nguyengianguit"
