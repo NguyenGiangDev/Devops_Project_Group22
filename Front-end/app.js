@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = process.env.PORT || 3000; // Cổng frontend
 const path = require('path');
-const express = require('express');
 const client = require('prom-client');
 const app = express();
 const register = new client.Registry();
