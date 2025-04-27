@@ -9,7 +9,7 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-	"prom-client": "^latest_version"
+	"prom-client": "^latest_version",
         "axios": "^0.21.1",
         "body-parser": "^1.19.0",
         "cookie-parser": "^1.4.7",
