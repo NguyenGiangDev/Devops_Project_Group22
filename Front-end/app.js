@@ -33,12 +33,6 @@ const successRequests = new client.Counter({
   help: 'Tổng số lượng request thành công (status 2xx)',
 });
 
-// Metrics: số lượng request thành công (status 2xx)
-const successRequests = new client.Counter({
-  name: 'app_success_requests',
-  help: 'Tổng số lượng request thành công (status 2xx)',
-});
-
 // Metrics: số lượng request thất bại (status 4xx, 5xx)
 const failedRequests = new client.Counter({
   name: 'app_failed_requests',
