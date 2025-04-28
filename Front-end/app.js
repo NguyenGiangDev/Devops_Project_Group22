@@ -23,13 +23,19 @@ const SALARY_API_URL = process.env.SALARY_API_URL || 'http://salary-services:300
 
 // Tự động thu thập các metric mặc định
 collectDefaultMetrics();
-
+// Tạo một hàm để thực hiện việc thu thập metric đồng thời tại 1 thời điểm (chỉ nhận success)
+// Tạo Gauge để theo dõi số lượng truy cập đồng thời
+const loginConcurrent = new Gauge({
+  name: 'total_request_concurrent_access',
+  help: 'Number of concurrent requests in a moment',
+});
 // Tạo một Counter để đếm số lượng đăng nhập thành công
 const loginCounter = new Counter({
   name: 'login_attempts_total',
   help: 'Total number of login attempts',
   labelNames: ['status'], // Gắn nhãn để phân biệt đăng nhập thành công/thất bại
 });
+
 
 // Route thu thập metric
 app.get('/metrics', async (req, res) => {
@@ -215,7 +221,7 @@ app.post('/api/auth/login', (req, res) => {
       loginCounter.inc({ status: 'success' });
       totalLoginCounter.inc();              // tổng số lần login
       updateLoginSuccessRate();              // cập nhật tỷ lệ thành công
-
+      loginConcurrent.inc();
       if (role === 'Account') {
         res.redirect('/salary.html?message=' + encodeURIComponent('Login successful!'));
         return;
