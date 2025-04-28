@@ -5,8 +5,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = process.env.PORT || 3000; // Cổng frontend
 const path = require('path');
-const client = require('prom-client');
-const register = new client.Registry();
+const { collectDefaultMetrics, Registry, Counter } = require('prom-client');
 
 // Middleware để parse dữ liệu từ biểu mẫu
 app.use(express.json()); // Để xử lý các yêu cầu có body dưới dạng JSON
@@ -21,47 +20,25 @@ const AUTHENTICATION_API_URL = process.env.AUTHENTICATION_API_URL || 'http://aut
 const PERSONAL_API_URL = process.env.PERSONAL_API_URL || 'http://personal-services:3004';
 const SALARY_API_URL = process.env.SALARY_API_URL || 'http://salary-services:3005';
 
-// Metrics: tổng số request
-const totalRequests = new client.Counter({
-  name: 'app_total_requests',
-  help: 'Tổng số lượng request tới API Gateway',
+
+// Tự động thu thập các metric mặc định
+collectDefaultMetrics();
+
+// Tạo một Counter để đếm số lượng đăng nhập thành công
+const loginCounter = new Counter({
+  name: 'login_attempts_total',
+  help: 'Total number of login attempts',
+  labelNames: ['status'], // Gắn nhãn để phân biệt đăng nhập thành công/thất bại
 });
 
-// Metrics: số lượng request thành công (status 2xx)
-const successRequests = new client.Counter({
-  name: 'app_success_requests',
-  help: 'Tổng số lượng request thành công (status 2xx)',
-});
-
-// Metrics: số lượng request thất bại (status 4xx, 5xx)
-const failedRequests = new client.Counter({
-  name: 'app_failed_requests',
-  help: 'Tổng số lượng request thất bại (status 4xx, 5xx)',
-});
-
-// Đăng ký các metrics vào registry
-register.registerMetric(totalRequests);
-register.registerMetric(successRequests);
-register.registerMetric(failedRequests);
-// Tùy chỉnh thêm (giúp Prometheus fetch dữ liệu)
+// Route thu thập metric
 app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', register.contentType);
-  res.end(await register.metrics());
-});
-
-// Middleware để ghi nhận metrics cho mỗi request
-app.use((req, res, next) => {
-  totalRequests.inc(); // Mỗi request đều tăng
-
-  res.on('finish', () => { // Khi request kết thúc
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      successRequests.inc(); // Thành công
-    } else if (res.statusCode >= 400 && res.statusCode < 600) {
-      failedRequests.inc(); // Thất bại
-    }
-  });
-
-  next();
+  try {
+    res.set('Content-Type', 'text/plain; version=0.0.4');
+    res.end(await Registry.globalRegistry.metrics());
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 // 📌 Healthcheck Endpoint
