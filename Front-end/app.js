@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = process.env.PORT || 3000; // Cổng frontend
 const path = require('path');
-const { collectDefaultMetrics, Registry, Counter } = require('prom-client');
+const { collectDefaultMetrics, Registry, Counter, Gauge } = require('prom-client');
 
 // Middleware để parse dữ liệu từ biểu mẫu
 app.use(express.json()); // Để xử lý các yêu cầu có body dưới dạng JSON
