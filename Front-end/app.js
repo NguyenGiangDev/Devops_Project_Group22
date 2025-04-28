@@ -40,7 +40,29 @@ app.get('/metrics', async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+// 2. Tổng số lượt login (không phân biệt status)
+const totalLoginCounter = new Counter({
+  name: 'total_login_attempts',
+  help: 'Total login attempts (regardless of success or failure)',
+});
 
+// 3. Gauge: Tỉ lệ phần trăm thành công
+const loginSuccessRateGauge = new Gauge({
+  name: 'login_success_rate_percentage',
+  help: 'Percentage of successful login attempts',
+});
+
+// Cập nhật login success rate
+function updateLoginSuccessRate() {
+  const success = loginCounter.hashMap['status:success'] ? loginCounter.hashMap['status:success'].value : 0;
+  const failure = loginCounter.hashMap['status:fail'] ? loginCounter.hashMap['status:fail'].value : 0;
+  const total = success + failure;
+
+  if (total > 0) {
+    const successRate = (success / total) * 100;
+    loginSuccessRateGauge.set(successRate);
+  }
+}
 // 📌 Healthcheck Endpoint
 app.get('/healthz', async (req, res) => {
   const services = {
@@ -174,35 +196,48 @@ app.post('/api/employees/delete', (req, res) => {
       res.status(500).send('Error deleting employee');
     });
 });
+
 app.post('/api/auth/login', (req, res) => {
   const { id, password } = req.body;
 
   axios.post(`${AUTHENTICATION_API_URL}/authentication/login`, { id, password })
-  .then(response => {
-      console.log("📌 Dữ liệu API trả về:", response.data); // Debug API response
+    .then(response => {
+      console.log("📌 Dữ liệu API trả về:", response.data);
 
       const { token, role, name, department } = response.data;
-      console.log("📌 Tên nhân viên:", name); 
+      console.log("📌 Tên nhân viên:", name);
       console.log("📌 Phòng ban:", department);
 
       res.cookie('authToken', token, { httpOnly: true, maxAge: 3600000 });
       res.cookie('userRole', role, { maxAge: 3600000, path: '/' });
-      if (role==='Account') {
+
+      // 👉 Đăng nhập thành công => Ghi nhận metric
+      loginCounter.inc({ status: 'success' });
+      totalLoginCounter.inc();              // tổng số lần login
+      updateLoginSuccessRate();              // cập nhật tỷ lệ thành công
+
+      if (role === 'Account') {
         res.redirect('/salary.html?message=' + encodeURIComponent('Login successful!'));
         return;
       }
       if (role === 'employee') {
-          res.redirect(`/Empoyee_Account.html?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}&department=${encodeURIComponent(department)}`);
+        res.redirect(`/Empoyee_Account.html?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}&department=${encodeURIComponent(department)}`);
       } else {
-          res.redirect('/add_employ.html?message=' + encodeURIComponent('Login successful!'));
+        res.redirect('/add_employ.html?message=' + encodeURIComponent('Login successful!'));
       }
-  })
-  .catch(error => {
+    })
+    .catch(error => {
       console.error('❌ Lỗi đăng nhập:', error);
-      res.status(500).json({ error: 'Failed to log in' });
-  });
 
+      // 👉 Đăng nhập thất bại => Ghi nhận metric
+      loginCounter.inc({ status: 'fail' });
+      totalLoginCounter.inc();              // tổng số lần login
+      updateLoginSuccessRate();              // cập nhật tỷ lệ thành công
+
+      res.status(500).json({ error: 'Failed to log in' });
+    });
 });
+
 // Route để nhận yêu cầu check-in từ frontend
 app.post('/checkin', async (req, res) => {
     const { name, id, checkInTime } = req.body;  // Lấy dữ liệu từ frontend gửi lên
