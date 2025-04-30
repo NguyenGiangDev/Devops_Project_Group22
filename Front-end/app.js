@@ -307,7 +307,6 @@ app.post('/calculate-salary', async (req, res) => {
 });
 
 // Chạy server
-// Chạy server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Frontend service running on port ${PORT}`);
 });
