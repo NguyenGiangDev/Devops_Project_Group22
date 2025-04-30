@@ -8,20 +8,16 @@ on:
 env:
   DOCKER_BUILDKIT: 0
   DOCKERHUB_USER: nguyengianguit
-  HELM_REPO: https://gitlab.com/devops_group22/ci-runner-github.git
   IMAGE_TAG: v${{ github.run_id }}
 
 jobs:
   build-and-push:
-    name: Build and Push Docker Images
+    name: Build and Push Docker Images (Changed Only)
     runs-on: [self-hosted, linux]
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-
-      - name: Disable Docker BuildKit (Optional Safety)
-        run: echo "DOCKER_BUILDKIT=0" >> $GITHUB_ENV
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
@@ -32,21 +28,36 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker images
+      - name: Determine changed services and build Docker images
         run: |
+          SERVICES=("Front-end" "Authentication_services" "department_services" "employee_services" "Personal_services" "salary_services")
+          CHANGED_SERVICES=""
+
+          for SERVICE in "${SERVICES[@]}"; do
+            if git diff --name-only HEAD^ HEAD | grep "^$SERVICE/" > /dev/null; then
+              CHANGED_SERVICES="$CHANGED_SERVICES $SERVICE"
+            fi
+          done
+
+          CHANGED_SERVICES=$(echo $CHANGED_SERVICES | xargs)  # remove extra spaces
+          echo "Changed services: $CHANGED_SERVICES"
+          echo "$CHANGED_SERVICES" > changed_services.txt
           echo "${{ env.IMAGE_TAG }}" > image_tag.txt
-          for SERVICE in Front-end Authentication_services department_services employee_services Personal_services salary_services; do
+
+          for SERVICE in $CHANGED_SERVICES; do
             IMAGE_NAME=$(echo $SERVICE | tr '_' '-' | tr '[:upper:]' '[:lower:]')
             echo "🚀 Building $SERVICE → $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}"
             docker build -t $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} ./$SERVICE
             docker push $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
           done
 
-      - name: Upload image tag artifact
+      - name: Upload artifacts (changed services & image tag)
         uses: actions/upload-artifact@v4
         with:
-          name: image-tag
-          path: image_tag.txt
+          name: image-data
+          path: |
+            changed_services.txt
+            image_tag.txt
 
   update-helm:
     name: Update Helm values.yaml in GitLab repo
@@ -54,10 +65,10 @@ jobs:
     needs: build-and-push
 
     steps:
-      - name: Download image tag
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: image-tag
+          name: image-data
 
       - name: Install dependencies
         run: |
@@ -67,17 +78,31 @@ jobs:
       - name: Clone Helm chart repo
         run: |
           git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_TOKEN }}@gitlab.com/devops_group22/ci-runner-github.git helm-chart
-          cp image_tag.txt helm-chart/
 
-      - name: Update values.yaml
+      - name: Update values.yaml with changed services
         run: |
+          declare -A SERVICE_MAP=(
+            ["Front-end"]="front_end"
+            ["Authentication_services"]="authentication_services"
+            ["department_services"]="department_services"
+            ["employee_services"]="employee_services"
+            ["Personal_services"]="personal_services"
+            ["salary_services"]="salary_services"
+          )
+
+          CHANGED_SERVICES=$(cat changed_services.txt)
+          IMAGE_TAG=$(cat image_tag.txt)
+
           cd helm-chart/helm-chart
-          IMAGE_TAG=$(cat ../image_tag.txt)
-          for SERVICE in front_end authentication_services department_services employee_services personal_services salary_services; do
-            IMAGE_NAME=$(echo $SERVICE | sed 's/_/-/g')
-            echo "🔧 Updating $SERVICE → $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
-            yq -i -y ".services.${SERVICE}.image.repository = \"$DOCKERHUB_USER/$IMAGE_NAME\"" values.yaml
-            yq -i -y ".services.${SERVICE}.image.tag = \"$IMAGE_TAG\"" values.yaml
+
+          for SERVICE_DIR in $CHANGED_SERVICES; do
+            HELM_KEY=${SERVICE_MAP[$SERVICE_DIR]}
+            IMAGE_NAME=$(echo "$SERVICE_DIR" | tr '_' '-' | tr '[:upper:]' '[:lower:]')
+
+            echo "🔧 Updating $HELM_KEY → $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
+
+            yq -i -y ".services.${HELM_KEY}.image.repository = \"$DOCKERHUB_USER/$IMAGE_NAME\"" values.yaml
+            yq -i -y ".services.${HELM_KEY}.image.tag = \"$IMAGE_TAG\"" values.yaml
           done
 
       - name: Commit and push changes
@@ -88,4 +113,3 @@ jobs:
           git add .
           git commit -m "Update image tag to $IMAGE_TAG [skip ci]" || echo "Nothing to commit"
           git push origin main
-

@@ -23,11 +23,12 @@ const SALARY_API_URL = process.env.SALARY_API_URL || 'http://salary-services:300
 
 // Tự động thu thập các metric mặc định
 collectDefaultMetrics();
-// Tạo một hàm để thực hiện việc thu thập metric đồng thời tại 1 thời điểm (chỉ nhận success)
+// Tạo một hàm để thực hiện việc thu thập metric đồng thời tại 1 thời điểm (chỉ nhận fail)
 // Tạo Gauge để theo dõi số lượng truy cập đồng thời
-const loginConcurrent = new Gauge({
-  name: 'total_request_concurrent_access',
-  help: 'Number of concurrent requests in a moment',
+let currentConcurrent = 0;
+const loginFailConcurrentGauge = new Gauge({
+  name: 'login_fail_concurrent',
+  help: 'Number of concurrent failed login requests at the moment they occur',
 });
 // Tạo một Counter để đếm số lượng đăng nhập thành công
 const loginCounter = new Counter({
@@ -221,7 +222,6 @@ app.post('/api/auth/login', (req, res) => {
       loginCounter.inc({ status: 'success' });
       totalLoginCounter.inc();              // tổng số lần login
       updateLoginSuccessRate();              // cập nhật tỷ lệ thành công
-      loginConcurrent.inc();
       if (role === 'Account') {
         res.redirect('/salary.html?message=' + encodeURIComponent('Login successful!'));
         return;
@@ -238,9 +238,12 @@ app.post('/api/auth/login', (req, res) => {
       // 👉 Đăng nhập thất bại => Ghi nhận metric
       loginCounter.inc({ status: 'fail' });
       totalLoginCounter.inc();              // tổng số lần login
-      updateLoginSuccessRate();              // cập nhật tỷ lệ thành công
+      updateLoginSuccessRate();
+      currentFailConcurrent++;
+      loginFailConcurrentGauge.set(currentFailConcurrent); // Cập nhật metric ngay khi lỗi xảy ra
 
       res.status(500).json({ error: 'Failed to log in' });
+      currentFailConcurrent--;
     });
 });
 
