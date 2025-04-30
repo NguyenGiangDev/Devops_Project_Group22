@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Lấy 2 commit gần nhất
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
