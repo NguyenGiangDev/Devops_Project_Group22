@@ -41,7 +41,13 @@ jobs:
             fi
           done
 
-          CHANGED_SERVICES=$(echo $CHANGED_SERVICES | xargs)  # remove extra spaces
+          CHANGED_SERVICES=$(echo $CHANGED_SERVICES | xargs)
+
+          if [ -z "$CHANGED_SERVICES" ]; then
+            echo "No services have changed, skipping build."
+            exit 0
+          fi
+
           echo "Changed services: $CHANGED_SERVICES"
           echo "$CHANGED_SERVICES" > changed_services.txt
           echo "${{ env.IMAGE_TAG }}" > image_tag.txt
@@ -52,9 +58,12 @@ jobs:
             docker build -t $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} ./$SERVICE
             docker push $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
 
-            # Bắt đầu scan image bằng Trivy
             echo "🔒 Bắt đầu scan image $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} bằng Trivy"
             trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} || echo "Trivy scan completed with warnings."
+          done
+        env:
+          DOCKERHUB_USER: ${{ env.DOCKERHUB_USER }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
 
       - name: Upload artifacts (changed services & image tag)
         uses: actions/upload-artifact@v4
@@ -86,7 +95,7 @@ jobs:
 
       - name: Update values.yaml with changed services
         run: |
-          declare -A SERVICE_MAP=( 
+          declare -A SERVICE_MAP=(
             ["Front-end"]="front_end"
             ["Authentication_services"]="authentication_services"
             ["department_services"]="department_services"
