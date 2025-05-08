@@ -78,12 +78,12 @@ app.get('/healthz', async (req, res) => {
     authentication_service: `${AUTHENTICATION_API_URL}/healthz`
   };
 
-  let status = { api_gateway: "ok" }; // API Gateway luôn trả về OK nếu chạy
+  let status = { api_gateway: "ok" }; 
   let unhealthyServices = [];
 
   for (const [name, url] of Object.entries(services)) {
     try {
-      const response = await axios.get(url, { timeout: 2000 }); // Timeout 2s
+      const response = await axios.get(url, { timeout: 2000 }); 
       status[name] = response.data.status;
       if (response.data.status !== "ok") {
         unhealthyServices.push(name);
