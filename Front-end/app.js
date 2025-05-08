@@ -47,13 +47,13 @@ app.get('/metrics', async (req, res) => {
     res.status(500).send(err.message);
   }
 });
-// 2. Tổng số lượt login (không phân biệt status)
+// Tổng số lượt login (không phân biệt status)
 const totalLoginCounter = new Counter({
   name: 'total_login_attempts',
   help: 'Total login attempts (regardless of success or failure)',
 });
 
-// 3. Gauge: Tỉ lệ phần trăm thành công
+// Gauge: Tỉ lệ phần trăm thành công
 const loginSuccessRateGauge = new Gauge({
   name: 'login_success_rate_percentage',
   help: 'Percentage of successful login attempts',
@@ -277,7 +277,7 @@ app.post('/calculate-salary', async (req, res) => {
     const { dailySalary } = req.body;  // Lấy lương 1 ngày từ frontend gửi lên
 
     if (!dailySalary) {
-        return res.status(400).json({ error: 'Lương 1 ngày không hợp lệ' });
+        return res.status(400).json({ error: 'Vui lòng nhập đúng dữ liệu !!' });
     }
 
     try {
