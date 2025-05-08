@@ -1,4 +1,4 @@
-name: CI - Build, Push Docker & Update Helm Values 
+name: CI - Build, Push Docker & Update Helm Values
 
 on:
   push:
@@ -30,15 +30,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install Trivy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install -y trivy
-
       - name: Determine changed services and build Docker images
         run: |
           SERVICES=("Front-end" "Authentication_services" "department_services" "employee_services" "Personal_services" "salary_services")
@@ -61,8 +52,8 @@ jobs:
             docker build -t $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} ./$SERVICE
             docker push $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
 
-            # Scan the built image with Trivy for vulnerabilities
-            echo "🔒 Scanning $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} with Trivy"
+            # Bắt đầu scan image bằng Trivy
+            echo "🔒 Bắt đầu scan image $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} bằng Trivy"
             trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} || echo "Trivy scan completed with warnings."
 
       - name: Upload artifacts (changed services & image tag)
@@ -134,4 +125,3 @@ jobs:
           git add changed_services.txt
           git commit -m "Update changed services and their image tags" || echo "Nothing to commit"
           git push origin main
-
