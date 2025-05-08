@@ -95,7 +95,7 @@ app.get('/healthz', async (req, res) => {
   }
 
   if (unhealthyServices.length > 0) {
-    return res.status(503).json(status); // Trả về 503 nếu có service bị lỗi
+    return res.status(503).json(status); 
   }
   res.json(status);
 });
