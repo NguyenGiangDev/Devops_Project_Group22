@@ -11,7 +11,7 @@ const { collectDefaultMetrics, Registry, Counter, Gauge } = require('prom-client
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser()); // Sử dụng cookie-parser
+app.use(cookieParser());
 
 // URL của các dịch vụ khác (lấy từ biến môi trường hoặc mặc định)
 const EMPLOYEE_API_URL = process.env.EMPLOYEE_API_URL || 'http://employee-services:3001';
