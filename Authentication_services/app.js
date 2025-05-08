@@ -8,7 +8,7 @@ const cors = require('cors');
 app.use(cors());
 require('dotenv').config();
 
-// Kết nối đến cơ sở dữ liệu
+
 // Kết nối đến cơ sở dữ liệu
 connectDB()
   .then(async () => {
