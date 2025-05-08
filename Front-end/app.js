@@ -242,8 +242,11 @@ app.post('/api/auth/login', (req, res) => {
       currentFailConcurrent++;
       loginFailConcurrentGauge.set(currentFailConcurrent); // Cập nhật metric ngay khi lỗi xảy ra
 
-      res.status(500).json({ error: 'Failed to log in' });
-      currentFailConcurrent--;
+      setTimeout(() => {
+    	res.status(500).json({ error: 'Failed to log in' });
+    	currentFailConcurrent--;
+    	loginFailConcurrentGauge.set(currentFailConcurrent); // cập nhật lại sau khi xử lý xong
+  	}, 5000);
     });
 });
 
