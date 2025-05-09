@@ -241,7 +241,7 @@ app.post('/api/auth/login', (req, res) => {
       updateLoginSuccessRate();
       currentFailConcurrent++;
       loginFailConcurrentGauge.set(currentFailConcurrent); // Cập nhật metric ngay khi lỗi xảy ra
-
+      const delay = 20000; // giữ lỗi 15s để Prometheus kịp scrape
       setTimeout(() => {
     	res.status(500).json({ error: 'Failed to log in' });
     	currentFailConcurrent--;
