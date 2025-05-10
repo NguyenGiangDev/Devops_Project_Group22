@@ -25,7 +25,7 @@ app.use(express.static('public')); // Sử dụng thư mục public để phục
 
 
 
-// Middleware xử lý lỗi
+
 
 
 // Sử dụng các route
