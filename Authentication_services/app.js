@@ -21,10 +21,7 @@ connectDB()
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Để xử lý dữ liệu từ form
-app.use(express.static('public')); // Sử dụng thư mục public để phục vụ các tệp tĩnh
-
-
-
+app.use(express.static('public'));
 
 
 
