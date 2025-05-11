@@ -24,7 +24,6 @@ const SALARY_API_URL = process.env.SALARY_API_URL || 'http://salary-services:300
 // Tự động thu thập các metric mặc định
 collectDefaultMetrics();
 // Tạo một hàm để thực hiện việc thu thập metric đồng thời tại 1 thời điểm (chỉ nhận fail)
-// Tạo Gauge để theo dõi số lượng truy cập đồng thời
 let currentFailConcurrent = 0;
 const loginFailConcurrentGauge = new Gauge({
   name: 'login_fail_concurrent',
