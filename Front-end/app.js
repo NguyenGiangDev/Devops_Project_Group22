@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 const path = require('path');
 const { collectDefaultMetrics, Registry, Counter, Gauge } = require('prom-client');
 
-// Middleware để parse dữ liệu từ biểu mẫu
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
