@@ -1,39 +1,38 @@
+---
 name: CI - Build, Push Docker & Update Helm Values
-
 on:
   push:
     branches:
       - master
-
 env:
   DOCKER_BUILDKIT: 0
   DOCKERHUB_USER: nguyengianguit
   IMAGE_TAG: v${{ github.run_id }}
-
 jobs:
   build-and-push:
     name: Build and Push Docker Images (Changed Only)
-    runs-on: [self-hosted, linux]
-
+    runs-on:
+      - self-hosted
+      - linux
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # Lấy 2 commit gần nhất
-
+          fetch-depth: 2
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
       - name: Determine changed services and build Docker images
-        run: |
-          SERVICES=("Front-end" "Authentication_services" "department_services" "employee_services" "Personal_services" "salary_services")
+        run: >
+          SERVICES=("Front-end" "Authentication_services" "department_services"
+          "employee_services" "Personal_services" "salary_services")
+
           CHANGED_SERVICES=""
+
 
           for SERVICE in "${SERVICES[@]}"; do
             if git diff --name-only HEAD^ HEAD | grep "^$SERVICE/" > /dev/null; then
@@ -41,16 +40,22 @@ jobs:
             fi
           done
 
+
           CHANGED_SERVICES=$(echo $CHANGED_SERVICES | xargs)
+
 
           if [ -z "$CHANGED_SERVICES" ]; then
             echo "No services have changed, skipping build."
             exit 0
           fi
 
+
           echo "Changed services: $CHANGED_SERVICES"
+
           echo "$CHANGED_SERVICES" > changed_services.txt
+
           echo "${{ env.IMAGE_TAG }}" > image_tag.txt
+
 
           for SERVICE in $CHANGED_SERVICES; do
             IMAGE_NAME=$(echo $SERVICE | tr '_' '-' | tr '[:upper:]' '[:lower:]')
@@ -58,13 +63,53 @@ jobs:
             docker build -t $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} ./$SERVICE
             docker push $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
 
-            echo "🔒 Bắt đầu scan image $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} bằng Trivy"
-            trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} || echo "Trivy scan completed with warnings."
+          echo "🔒 Bắt đầu scan image $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }} bằng Trivy"
+            TRIVY_REPORT="trivy-report.json"
+            trivy image \
+              --scanners vuln \
+              --severity HIGH,CRITICAL \
+              --timeout 5m \
+              --exit-code 0 \
+              --format json \
+              --output $TRIVY_REPORT \
+              $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
+
+            VULN_COUNT=$(jq '.Results[].Vulnerabilities | map(select(.Severity == "HIGH" or .Severity == "CRITICAL")) | length' $TRIVY_REPORT | paste -sd+ - | bc)
+
+            THRESHOLD=10  # Ngưỡng lỗ hổng, bạn có thể chỉnh số này
+
+            if [ "$VULN_COUNT" -gt "$THRESHOLD" ]; then
+              echo "⚠️ Có $VULN_COUNT lỗ hổng nghiêm trọng! Gửi cảnh báo Slack."
+
+              curl -X POST -H 'Content-type: application/json' --data "{
+                \"attachments\": [
+                  {
+                    \"color\": \"#e01e5a\",
+                    \"title\": \"🚨 Trivy Scan Alert\",
+                    \"text\": \"Image *$DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}* có $VULN_COUNT lỗ hổng HIGH/CRITICAL vượt quá ngưỡng ($THRESHOLD). Vui lòng kiểm tra.\",
+                    \"fields\": [
+                      {
+                        \"title\": \"Repository\",
+                        \"value\": \"${{ github.repository }}\",
+                        \"short\": true
+                      },
+                      {
+                        \"title\": \"Image tag\",
+                        \"value\": \"$IMAGE_NAME:${{ env.IMAGE_TAG }}\",
+                        \"short\": true
+                      }
+                    ]
+                  }
+                ]
+              }" ${{ secrets.SLACK_WEBHOOK_URL }}
+            else
+              echo "✅ Số lượng lỗ hổng ($VULN_COUNT) trong giới hạn an toàn."
+            fi
+
           done
         env:
           DOCKERHUB_USER: ${{ env.DOCKERHUB_USER }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
-
       - name: Upload artifacts (changed services & image tag)
         uses: actions/upload-artifact@v4
         with:
@@ -72,29 +117,25 @@ jobs:
           path: |
             changed_services.txt
             image_tag.txt
-
   update-helm:
     name: Update Helm values.yaml in GitLab repo
     runs-on: ubuntu-latest
     needs: build-and-push
-
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: image-data
-
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y git curl yq
-
       - name: Clone Helm chart repo
-        run: |
-          git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_TOKEN }}@gitlab.com/devops_group22/ci-runner-github.git helm-chart
-
+        run: >
+          git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_TOKEN
+          }}@gitlab.com/devops_group22/ci-runner-github.git helm-chart
       - name: Update values.yaml with changed services
-        run: |
+        run: >
           declare -A SERVICE_MAP=(
             ["Front-end"]="front_end"
             ["Authentication_services"]="authentication_services"
@@ -104,10 +145,14 @@ jobs:
             ["salary_services"]="salary_services"
           )
 
+
           CHANGED_SERVICES=$(cat changed_services.txt)
+
           IMAGE_TAG=$(cat image_tag.txt)
 
+
           cd helm-chart/helm-chart
+
 
           for SERVICE_DIR in $CHANGED_SERVICES; do
             HELM_KEY=${SERVICE_MAP[$SERVICE_DIR]}
@@ -118,19 +163,25 @@ jobs:
             yq -i -y ".services.${HELM_KEY}.image.repository = \"$DOCKERHUB_USER/$IMAGE_NAME\"" values.yaml
             yq -i -y ".services.${HELM_KEY}.image.tag = \"$IMAGE_TAG\"" values.yaml
           done
-
       - name: Commit and push changes
-        run: |
+        run: >
           cd helm-chart
-          git config user.name "${{ secrets.GIT_USERNAME }}"
-          git config user.email "ci-bot@example.com"
-          git add .
-          git commit -m "Update image tag to $IMAGE_TAG [skip ci]" || echo "Nothing to commit"
-          git push origin main
 
+          git config user.name "${{ secrets.GIT_USERNAME }}"
+
+          git config user.email "ci-bot@example.com"
+
+          git add .
+
+          git commit -m "Update image tag to $IMAGE_TAG [skip ci]" || echo "Nothing to commit"
+
+          git push origin main
       - name: Commit and push changed services file to GitLab
-        run: |
+        run: >
           cd helm-chart
+
           git add changed_services.txt
+
           git commit -m "Update changed services and their image tags" || echo "Nothing to commit"
+
           git push origin main
