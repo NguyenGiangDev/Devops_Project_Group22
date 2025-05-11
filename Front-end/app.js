@@ -33,7 +33,7 @@ const loginFailConcurrentGauge = new Gauge({
 const loginCounter = new Counter({
   name: 'login_attempts_total',
   help: 'Total number of login attempts',
-  labelNames: ['status'], // Gắn nhãn để phân biệt đăng nhập thành công/thất bại
+  labelNames: ['status'], 
 });
 
 
