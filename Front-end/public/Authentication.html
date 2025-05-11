@@ -1,152 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        
-        body {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: url('/images/imahe1.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            flex-direction: column;
-        }
-        
-        #changeBgBtn {
-            position: fixed;
-            top: 50%;
-            right: 10px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            border-radius: 5px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng nhập</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        .login-container {
-            margin-top: -100px;
-            width: 50%;
-            padding: 40px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: url('/images/imahe1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      flex-direction: column;
+      transition: background 0.5s ease-in-out;
+    }
 
-        .header {
-            background-color: #0056b3;
-            color: #fff;
-            padding: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            border-radius: 8px;
-        }
+    #changeBgBtn {
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 10;
+    }
 
-        .subtitle {
-            display: block;
-            font-size: 14px;
-        }
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
 
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
+    .header {
+      font-size: 24px;
+      color: white;
+      background: #007bff;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
 
-        label {
-            font-weight: bold;
-        }
+    .subtitle {
+      font-size: 13px;
+      color: #e0e0e0;
+      display: block;
+    }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #f9f9f9;
-        }
+    h2 {
+      margin: 10px 0 25px;
+      color: #333;
+    }
 
-        .login-button {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
 
-        .login-button:hover {
-            background-color: #0056b3;
-        }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+    }
 
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            width: 100%;
-            position: absolute;
-            bottom: 0;
-        }
-    </style>
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .login-button:hover {
+      background: #0056b3;
+    }
+
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: #ffc107;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 500px) {
+      .login-container {
+        margin: 20px;
+        padding: 30px;
+      }
+
+      #changeBgBtn {
+        right: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <button id="changeBgBtn">⮕</button>
-    <div class="login-container">
-        <div class="header">CÔNG TY OUTSOURCE-DEVELOP
-            <span class="subtitle">Khoa mạng máy tính & Truyền thông</span>
-        </div>
-        <h2>Đăng nhập</h2>
-        <form action="/api/auth/login" method="POST">
-            <div class="input-group">
-                <label for="id">Mã nhân viên:</label>
-                <input type="text" name="id" required placeholder="Nhập mã nhân viên">
-            </div>
-            <div class="input-group">
-                <label for="password">Mật khẩu:</label>
-                <input type="password" name="password" required placeholder="Nhập mật khẩu">
-            </div>
-            <button type="submit" class="login-button">Đăng nhập</button>
-        </form>
+  <button id="changeBgBtn">⮕</button>
+
+  <div class="login-container">
+    <div class="header">
+      CÔNG TY OUTSOURCE-DEVELOP
+      <span class="subtitle">Khoa mạng máy tính & Truyền thông</span>
     </div>
-    <footer>
-        <p>Nguyễn Đình Giang | UIT</p>
-        <p>Email: <a href="mailto:nguyendinhgiang2004tgdd@gmail.com">nguyendinhgiang2004tgdd@gmail.com</a></p>
-        <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
-    </footer>
-    <script>
-      const images = [
-    'imahe1.jpg',
-    'imahe2.jpg',
-    'imahe3.jpg'
-];
 
-let currentIndex = 0;
-const bgBtn = document.getElementById('changeBgBtn');
-const body = document.body;
+    <h2>Đăng nhập</h2>
+    <form action="/api/auth/login" method="POST">
+      <div class="input-group">
+        <label for="id">Mã nhân viên:</label>
+        <input type="text" name="id" required placeholder="Nhập mã nhân viên" />
+      </div>
+      <div class="input-group">
+        <label for="password">Mật khẩu:</label>
+        <input type="password" name="password" required placeholder="Nhập mật khẩu" />
+      </div>
+      <button type="submit" class="login-button">Đăng nhập</button>
+    </form>
+  </div>
 
-bgBtn.addEventListener('click', function () {
-    currentIndex = (currentIndex + 1) % images.length;
-    const newImage = `url('/images/${images[currentIndex]}')`;
-    body.style.transition = "background 0.5s ease-in-out";
-    body.style.backgroundImage = newImage;
-});
-    </script>
+  <footer>
+    <p>Nguyễn Đình Giang | UIT</p>
+    <p>Email: <a href="mailto:nguyendinhgiang2004tgdd@gmail.com">nguyendinhgiang2004tgdd@gmail.com</a></p>
+    <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
+  </footer>
+
+  <script>
+    const images = ['imahe1.jpg', 'imahe2.jpg', 'imahe3.jpg'];
+    let currentIndex = 0;
+
+    const bgBtn = document.getElementById('changeBgBtn');
+    const body = document.body;
+
+    bgBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % images.length;
+      body.style.backgroundImage = `url('/images/${images[currentIndex]}')`;
+    });
+  </script>
 </body>
 </html>
