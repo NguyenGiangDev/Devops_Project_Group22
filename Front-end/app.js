@@ -143,7 +143,7 @@ app.post('/api/employees', async (req, res) => {
 });
 
 
-// Route để thêm phòng ban
+
 app.post('/api/department', (req, res) => {
   const departmentData = req.body;
 
@@ -219,8 +219,8 @@ app.post('/api/auth/login', (req, res) => {
 
       // 👉 Đăng nhập thành công => Ghi nhận metric
       loginCounter.inc({ status: 'success' });
-      totalLoginCounter.inc();              // tổng số lần login
-      updateLoginSuccessRate();              // cập nhật tỷ lệ thành công
+      totalLoginCounter.inc();
+      updateLoginSuccessRate();
       if (role === 'Account') {
         res.redirect('/salary.html?message=' + encodeURIComponent('Login successful!'));
         return;
