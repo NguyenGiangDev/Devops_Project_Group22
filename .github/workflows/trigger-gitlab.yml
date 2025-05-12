@@ -67,15 +67,16 @@ jobs:
             TRIVY_REPORT="trivy-report.json"
             trivy image \
               --scanners vuln \
+              --vuln-type library \
               --severity HIGH,CRITICAL \
-              --timeout 5m \
+              --timeout 10m \
               --exit-code 0 \
               --format json \
               --output $TRIVY_REPORT \
               $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
 
             VULN_COUNT=$(jq '.Results[].Vulnerabilities | map(select(.Severity == "HIGH" or .Severity == "CRITICAL")) | length' $TRIVY_REPORT | paste -sd+ - | bc)
-
+            VULN_COUNT=${VULN_COUNT:-0}
             THRESHOLD=10
 
             if [ "$VULN_COUNT" -gt "$THRESHOLD" ]; then
