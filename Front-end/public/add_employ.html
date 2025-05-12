@@ -1,357 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang thêm nhân viên</title>
-    <style>
-      body {
-    font-family: Arial, sans-serif;
-    background-image: url('/images/imahe2.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        input[type="text"], input[type="number"], input[type="search"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #employee-table {
-            margin-top: 20px;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        #employee-list {
-            display: none;
-        }
-        #reset-button, #sort-button, #search-box {
-            display: none;
-        }
-        .delete-button {
-            background-color: #ff4d4d; /* Màu đỏ */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trang thêm nhân viên</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('/images/imahe2.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-        .delete-button:hover {
-            background-color: #cc0000; /* Màu đỏ đậm hơn khi hover */
-        }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-            margin-left: 10px;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 200px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        .dropdown:hover .dropdown-button {
-            background-color: #0056b3;
-        }
-        /* Phân quyền admin */
-        .admin-only {
-            display: none;
-        }
-        footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: auto; /* Đảm bảo footer luôn nằm ở dưới cùng */
-}
-    </style>
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.85);
+      flex: 1;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 850px;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #003366;
+    }
+
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="search"],
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #employee-table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    #employee-list {
+      display: none;
+    }
+
+    #reset-button, #sort-button, #search-box {
+      display: none;
+    }
+
+    .delete-button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .delete-button:hover {
+      background-color: #a71d2a;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .dropdown-button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #333;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover .dropdown-button {
+      background-color: #0056b3;
+    }
+
+    footer {
+      background-color: #222;
+      color: white;
+      text-align: center;
+      padding: 15px 10px;
+      font-size: 14px;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: #f0f0f0;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
+  <div class="overlay">
     <div class="container">
-        <h1>Trang quản lý nhân viên</h1>
+      <h1>Trang quản lý nhân viên</h1>
 
-        <!-- Form thêm nhân viên chỉ hiển thị nếu là admin -->
-        <form action="/api/employees" method="POST" >
-            <input type="text" id="name" name="name" placeholder="Nhập tên nhân viên" required>
-            <input type="text" id="position" name="position" placeholder="Nhập phòng ban" required>
-            <input type="number" id="phone" name="phone" placeholder="Nhập số điện thoại" required>
-            <button type="submit">Thêm nhân viên</button>
+      <!-- Form thêm nhân viên -->
+      <form action="/api/employees" method="POST">
+        <input type="text" id="name" name="name" placeholder="Nhập tên nhân viên" required>
+        <input type="text" id="position" name="position" placeholder="Nhập phòng ban" required>
+        <input type="number" id="phone" name="phone" placeholder="Nhập số điện thoại" required>
+        <button type="submit">Thêm nhân viên</button>
 
+        <button id="list-button" type="button">Hiển thị danh sách nhân viên</button>
+        <button id="reset-button" type="button">Thu gọn</button>
+        <button id="department-button" type="button">Phòng ban</button>
 
-        <button id="list-button">Hiện thị danh sách nhân viên</button>
-        <button id="reset-button">Thu gọn</button>
-        <button id="department-button">Phòng ban</button>
         <input type="search" id="search-box" placeholder="Tìm kiếm">
         <div class="dropdown">
-            <button class="dropdown-button">Tìm kiếm theo</button>
-            <div class="dropdown-content">
-                <a href="#" id="search-name">Tìm kiếm nhân viên theo tên</a>
-                <a href="#" id="search-phone">Tìm kiếm nhân viên theo số điện thoại</a>  
-            </div>
+          <button class="dropdown-button" type="button">Tìm kiếm theo</button>
+          <div class="dropdown-content">
+            <a href="#" id="search-name">Tìm kiếm nhân viên theo tên</a>
+            <a href="#" id="search-phone">Tìm kiếm nhân viên theo số điện thoại</a>
+          </div>
         </div>
-        <div id="employee-list">
-            <h2>Danh sách nhân viên</h2>
-            <table id="employee-table">
-                <thead>
-                    <tr>
-                        <th>Tên</th>
-                        <th>Thuộc phòng ban</th>
-                        <th>Số điện thoại</th>
-                      
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Dữ liệu sẽ được chèn vào đây bằng JavaScript -->
-                </tbody>
-            </table>
-        </div>
+      </form>
+
+      <div id="employee-list">
+        <h2>Danh sách nhân viên</h2>
+        <table id="employee-table">
+          <thead>
+            <tr>
+              <th>Tên</th>
+              <th>Phòng ban</th>
+              <th>Số điện thoại</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JavaScript sẽ chèn dữ liệu tại đây -->
+          </tbody>
+        </table>
+      </div>
     </div>
-    <footer>
-        <p>Nguyễn Đình Giang | UIT</p>
-        <p>Email: <a href="mailto:nguyendinhgiang2004tgdd@gmail.com">nguyendinhgiang2004tgdd@gmail.com</a></p>
-        <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
-        </footer>
-    <script>
-        let employees = []; // Biến lưu trữ danh sách nhân viên
+  </div>
 
-        document.getElementById('list-button').addEventListener('click', function() {
-            // Hiển thị danh sách nhân viên và các nút
-            document.getElementById('employee-list').style.display = 'block';
-            document.getElementById('reset-button').style.display = 'inline-block';
-            
-            document.getElementById('search-box').style.display = 'block';
+  <footer>
+    <p>Nguyễn Đình Giang | UIT</p>
+    <p>Email: <a href="mailto:nguyendinhgiang2004tgdd@gmail.com">nguyendinhgiang2004tgdd@gmail.com</a></p>
+    <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
+  </footer>
 
-            loadEmployees(); // Gọi hàm để tải danh sách nhân viên
-        });
+  <!-- JavaScript bạn đã viết -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const listButton = document.getElementById("list-button");
+      const resetButton = document.getElementById("reset-button");
+      const employeeList = document.getElementById("employee-list");
+      const searchBox = document.getElementById("search-box");
+      const searchNameButton = document.getElementById("search-name");
+      const searchPhoneButton = document.getElementById("search-phone");
 
-        document.getElementById('department-button').addEventListener('click', function() {
+      let searchBy = "name";
+
+      document.getElementById('department-button').addEventListener('click', function() {
             window.location.href = 'Department_add.html'; // Chuyển đến trang Department_add.html
         });
 
-        // Event delegation để xử lý sự kiện cho nút delete
-        document.querySelector('#employee-table tbody').addEventListener('click', function(event) {
-            if (event.target && event.target.nodeName === 'BUTTON') {
-                const row = event.target.closest('tr');
-                const name = row.querySelector('td:first-child').textContent;
-                console.log('Button clicked for employee:', name); // Log để kiểm tra sự kiện
-                deleteEmployee(name);
-            }
-        });
+      listButton.addEventListener("click", function () {
+        fetch("/api/employees")
+          .then((response) => response.json())
+          .then((employees) => {
+            const tableBody = document.querySelector("#employee-table tbody");
+            tableBody.innerHTML = "";
 
-        // Hàm tải danh sách nhân viên từ API
-        function loadEmployees() {
-            fetch('/api/employees')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    employees = data; // Lưu lại danh sách nhân viên
-                    renderEmployeeList(data); // Hiển thị danh sách
-                })
-                .catch(error => {
-                    console.error('Error fetching employee data:', error);
-                });
-        }
-        
-        function renderEmployeeList(data) {
-    const employeeTable = document.querySelector('#employee-table tbody');
-    employeeTable.innerHTML = ''; // Xóa sạch dữ liệu cũ trước khi thêm mới
+            employees.forEach((employee) => {
+              const row = document.createElement("tr");
 
-    // Chèn dữ liệu vào bảng
-    data.forEach(employee => {
-        const row = document.createElement('tr');
+              const nameCell = document.createElement("td");
+              nameCell.textContent = employee.name;
 
-        // Tạo các ô dữ liệu cho tên, vị trí và lương
-        const nameCell = document.createElement('td');
-        nameCell.textContent = employee.name;
+              const positionCell = document.createElement("td");
+              positionCell.textContent = employee.position;
 
-        const positionCell = document.createElement('td');
-        positionCell.textContent = employee.position;
+              const phoneCell = document.createElement("td");
+              phoneCell.textContent = employee.phone;
 
-        const salaryCell = document.createElement('td');
-        salaryCell.textContent = employee.phone;
-
-        // Thêm hàng vào bảng
-        row.appendChild(nameCell);
-        row.appendChild(positionCell);
-        row.appendChild(salaryCell);
-
-        // Chỉ tạo nút delete nếu là admin, nếu không thêm ô trống
-        const userRole = getCookie('userRole');
-        const buttonCell = document.createElement('td');
-        if (userRole === 'admin') {
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Xóa nhân viên';
-            deleteButton.classList.add('delete-button');
-            buttonCell.appendChild(deleteButton);
-        } else {
-            buttonCell.innerHTML = '&nbsp;'; // Thêm ô trống nếu không phải admin
-        }
-        row.appendChild(buttonCell);
-
-        employeeTable.appendChild(row);
-    });
-}
-
-        // Hàm gửi yêu cầu xóa nhân viên theo name
-        function deleteEmployee(name) {
-            fetch('/api/employees/delete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name: name })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert(data.message);
-                    loadEmployees(); // Cập nhật lại danh sách nhân viên sau khi xóa
-                } else {
-                    alert('Failed to delete employee');
+              const deleteCell = document.createElement("td");
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Xóa";
+              deleteButton.className = "delete-button";
+              deleteButton.addEventListener("click", function () {
+                if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
+                  fetch("/api/employees/" + employee._id, {
+                    method: "DELETE",
+                  }).then(() => {
+                    row.remove();
+                  });
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error); // In ra lỗi nếu có
+              });
+
+              deleteCell.appendChild(deleteButton);
+
+              row.appendChild(nameCell);
+              row.appendChild(positionCell);
+              row.appendChild(phoneCell);
+              row.appendChild(deleteCell);
+
+              tableBody.appendChild(row);
             });
-        }
 
-        // Nút reset để ẩn bảng danh sách nhân viên
-        document.getElementById('reset-button').addEventListener('click', function() {
-            document.getElementById('employee-list').style.display = 'none'; // Ẩn bảng
-            this.style.display = 'none'; // Ẩn nút reset
-            document.getElementById('sort-button').style.display = 'none'; // Ẩn nút sort
-            document.getElementById('search-box').style.display = 'none'; // Ẩn ô tìm kiếm
+            employeeList.style.display = "block";
+            resetButton.style.display = "inline-block";
+            searchBox.style.display = "inline-block";
+          });
+      });
+
+      resetButton.addEventListener("click", function () {
+        employeeList.style.display = "none";
+        resetButton.style.display = "none";
+        searchBox.style.display = "none";
+      });
+
+      searchNameButton.addEventListener("click", function () {
+        searchBy = "name";
+        searchBox.placeholder = "Tìm kiếm theo tên";
+      });
+
+      searchPhoneButton.addEventListener("click", function () {
+        searchBy = "phone";
+        searchBox.placeholder = "Tìm kiếm theo số điện thoại";
+      });
+
+      searchBox.addEventListener("input", function () {
+        const searchText = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll("#employee-table tbody tr");
+
+        rows.forEach((row) => {
+          const cell = row.querySelector(
+            searchBy === "name" ? "td:first-child" : "td:nth-child(3)"
+          );
+          if (cell) {
+            const cellText = cell.textContent.toLowerCase();
+            row.style.display = cellText.includes(searchText)
+              ? ""
+              : "none";
+          }
         });
-
-        let searchType = 'name'; // Mặc định tìm kiếm theo tên
-
-// Chọn kiểu tìm kiếm
-document.getElementById('search-name').addEventListener('click', function() {
-    searchType = 'name';
-    document.getElementById('search-box').placeholder = "Nhập tên nhân viên...";
-});
-
-document.getElementById('search-phone').addEventListener('click', function() {
-    searchType = 'phone';
-    document.getElementById('search-box').placeholder = "Nhập số điện thoại...";
-});
-
-// Lắng nghe sự kiện nhập vào ô tìm kiếm
-document.getElementById('search-box').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase(); // Lấy giá trị nhập vào
-
-    // Lọc danh sách nhân viên dựa trên kiểu tìm kiếm
-    const filteredEmployees = employees.filter(employee => 
-        searchType === 'name' 
-            ? employee.name.toLowerCase().includes(searchTerm) 
-            : employee.phone.includes(searchTerm) // Kiểm tra số điện thoại
-    );
-
-    renderEmployeeList(filteredEmployees); // Hiển thị kết quả lọc
-});
-    
-// Lấy giá trị của cookie theo tên
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    console.log(document.cookie);
-
-    const parts = value.split(`; ${name}=`);
-    
-    console.log('Cookie parts:', parts); // Thêm log để kiểm tra giá trị của parts
-    
-    if (parts.length === 2) {
-        return parts.pop().split(';').shift();
-    }
-    return null; // Trả về null nếu không tìm thấy cookie
-}
-
-
-// Kiểm tra phân quyền admin
-function checkAdmin() {
-    const userRole = getCookie('userRole');
-    console.log(`Giá trị cookie userRole: ${userRole}`); // In giá trị cookie ra console
-
-    if (userRole === 'admin') {
-        const adminElements = document.querySelectorAll('.admin-only');
-       
-
-        adminElements.forEach(element => {
-            element.style.display = 'block'; // Hiển thị các phần tử chỉ dành cho admin
-        });
-    } else {
-        console.log('Không phải admin hoặc cookie userRole không tồn tại.');
-    }
-}
-
-// Gọi hàm kiểm tra phân quyền admin sau khi trang đã tải xong
-document.addEventListener('DOMContentLoaded', checkAdmin);
-
-
-        // Gọi hàm kiểm tra admin khi trang tải
-        checkAdmin();
-    </script>
-    
-
+      });
+    });
+  </script>
 </body>
 </html>
