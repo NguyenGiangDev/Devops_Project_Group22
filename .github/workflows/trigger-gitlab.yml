@@ -76,7 +76,7 @@ jobs:
 
             VULN_COUNT=$(jq '.Results[].Vulnerabilities | map(select(.Severity == "HIGH" or .Severity == "CRITICAL")) | length' $TRIVY_REPORT | paste -sd+ - | bc)
 
-            THRESHOLD=10  # Ngưỡng lỗ hổng, bạn có thể chỉnh số này
+            THRESHOLD=10
 
             if [ "$VULN_COUNT" -gt "$THRESHOLD" ]; then
               echo "⚠️ Có $VULN_COUNT lỗ hổng nghiêm trọng! Gửi cảnh báo Slack."
