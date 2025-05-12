@@ -71,7 +71,6 @@ jobs:
             --severity HIGH,CRITICAL \
             --timeout 10m \
             --exit-code 0 \
-            --skip-dirs usr/src/app/node_modules \
             --format json \
             --output $TRIVY_REPORT \
             $DOCKERHUB_USER/$IMAGE_NAME:${{ env.IMAGE_TAG }}
