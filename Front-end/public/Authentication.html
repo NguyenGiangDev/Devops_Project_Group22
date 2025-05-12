@@ -3,167 +3,212 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Đăng nhập</title>
+  <title>Trang thêm nhân viên</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
     body {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-image: url('/images/imahe1.jpg');
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('/images/imahe2.jpg') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      display: flex;
       flex-direction: column;
-      transition: background 0.5s ease-in-out;
+      min-height: 100vh;
     }
 
-    #changeBgBtn {
-      position: fixed;
-      top: 50%;
-      right: 20px;
-      transform: translateY(-50%);
-      padding: 12px 16px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      font-size: 20px;
-      cursor: pointer;
-      z-index: 10;
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.85);
+      flex: 1;
+      padding: 40px 20px;
     }
 
-    .login-container {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.95);
+    .container {
+      max-width: 850px;
+      background: #ffffff;
+      padding: 30px;
       border-radius: 12px;
-      padding: 40px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin: auto;
+    }
+
+    h1 {
       text-align: center;
+      margin-bottom: 30px;
+      color: #003366;
     }
 
-    .header {
-      font-size: 24px;
-      color: white;
-      background: #007bff;
+    form input[type="text"],
+    form input[type="number"],
+    form input[type="search"],
+    button {
+      width: 100%;
       padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      margin-bottom: 20px;
+      box-sizing: border-box;
+      font-size: 16px;
     }
 
-    .subtitle {
-      font-size: 13px;
-      color: #e0e0e0;
-      display: block;
+    button {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s;
     }
 
-    h2 {
-      margin: 10px 0 25px;
-      color: #333;
+    button:hover {
+      background-color: #0056b3;
     }
 
-    .input-group {
-      margin-bottom: 20px;
+    #employee-table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px;
       text-align: left;
     }
 
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 6px;
-      color: #333;
+    th {
+      background-color: #007bff;
+      color: white;
     }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-      transition: border 0.3s;
+    tr:hover {
+      background-color: #f1f1f1;
     }
 
-    input:focus {
-      border-color: #007bff;
-      outline: none;
+    #employee-list {
+      display: none;
     }
 
-    .login-button {
-      width: 100%;
-      padding: 12px;
-      background: #007bff;
+    #reset-button, #sort-button, #search-box {
+      display: none;
+    }
+
+    .delete-button {
+      background-color: #dc3545;
       color: white;
       border: none;
+      padding: 10px 14px;
       border-radius: 6px;
-      font-size: 16px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background-color 0.3s;
     }
 
-    .login-button:hover {
-      background: #0056b3;
+    .delete-button:hover {
+      background-color: #a71d2a;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .dropdown-button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #333;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover .dropdown-button {
+      background-color: #0056b3;
     }
 
     footer {
-      margin-top: 30px;
-      text-align: center;
+      background-color: #222;
       color: white;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 12px 20px;
-      border-radius: 10px;
+      text-align: center;
+      padding: 15px 10px;
       font-size: 14px;
+      margin-top: auto;
     }
 
     footer a {
-      color: #ffc107;
-      text-decoration: none;
-    }
-
-    footer a:hover {
+      color: #f0f0f0;
       text-decoration: underline;
-    }
-
-    @media (max-width: 500px) {
-      .login-container {
-        margin: 20px;
-        padding: 30px;
-      }
-
-      #changeBgBtn {
-        right: 10px;
-      }
     }
   </style>
 </head>
 <body>
-  <button id="changeBgBtn">⮕</button>
+  <div class="overlay">
+    <div class="container">
+      <h1>Trang quản lý nhân viên</h1>
 
-  <div class="login-container">
-    <div class="header">
-      CÔNG TY OUTSOURCE-DEVELOP
-      <span class="subtitle">Khoa mạng máy tính & Truyền thông</span>
+      <!-- Form thêm nhân viên -->
+      <form action="/api/employees" method="POST">
+        <input type="text" id="name" name="name" placeholder="Nhập tên nhân viên" required>
+        <input type="text" id="position" name="position" placeholder="Nhập phòng ban" required>
+        <input type="number" id="phone" name="phone" placeholder="Nhập số điện thoại" required>
+        <button type="submit">Thêm nhân viên</button>
+
+        <button id="list-button" type="button">Hiển thị danh sách nhân viên</button>
+        <button id="reset-button" type="button">Thu gọn</button>
+        <button id="department-button" type="button">Phòng ban</button>
+
+        <input type="search" id="search-box" placeholder="Tìm kiếm">
+        <div class="dropdown">
+          <button class="dropdown-button" type="button">Tìm kiếm theo</button>
+          <div class="dropdown-content">
+            <a href="#" id="search-name">Tìm kiếm nhân viên theo tên</a>
+            <a href="#" id="search-phone">Tìm kiếm nhân viên theo số điện thoại</a>
+          </div>
+        </div>
+      </form>
+
+      <div id="employee-list">
+        <h2>Danh sách nhân viên</h2>
+        <table id="employee-table">
+          <thead>
+            <tr>
+              <th>Tên</th>
+              <th>Phòng ban</th>
+              <th>Số điện thoại</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JavaScript sẽ chèn dữ liệu tại đây -->
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <h2>Đăng nhập</h2>
-    <form action="/api/auth/login" method="POST">
-      <div class="input-group">
-        <label for="id">Mã nhân viên:</label>
-        <input type="text" name="id" required placeholder="Nhập mã nhân viên" />
-      </div>
-      <div class="input-group">
-        <label for="password">Mật khẩu:</label>
-        <input type="password" name="password" required placeholder="Nhập mật khẩu" />
-      </div>
-      <button type="submit" class="login-button">Đăng nhập</button>
-    </form>
   </div>
 
   <footer>
@@ -172,16 +217,103 @@
     <p>GitHub: <a href="https://github.com/NguyenGiangDev" target="_blank">NguyenGiangDev</a></p>
   </footer>
 
+  <!-- JavaScript bạn đã viết -->
   <script>
-    const images = ['imahe1.jpg', 'imahe2.jpg', 'imahe3.jpg'];
-    let currentIndex = 0;
+    document.addEventListener("DOMContentLoaded", function () {
+      const listButton = document.getElementById("list-button");
+      const resetButton = document.getElementById("reset-button");
+      const employeeList = document.getElementById("employee-list");
+      const searchBox = document.getElementById("search-box");
+      const searchNameButton = document.getElementById("search-name");
+      const searchPhoneButton = document.getElementById("search-phone");
 
-    const bgBtn = document.getElementById('changeBgBtn');
-    const body = document.body;
+      let searchBy = "name";
+      
+      document.getElementById('department-button').addEventListener('click', function() {
+            window.location.href = 'Department_add.html'; // Chuyển đến trang Department_add.html
+        });
 
-    bgBtn.addEventListener('click', () => {
-      currentIndex = (currentIndex + 1) % images.length;
-      body.style.backgroundImage = `url('/images/${images[currentIndex]}')`;
+      listButton.addEventListener("click", function () {
+        fetch("/api/employees")
+          .then((response) => response.json())
+          .then((employees) => {
+            const tableBody = document.querySelector("#employee-table tbody");
+            tableBody.innerHTML = "";
+
+            employees.forEach((employee) => {
+              const row = document.createElement("tr");
+
+              const nameCell = document.createElement("td");
+              nameCell.textContent = employee.name;
+
+              const positionCell = document.createElement("td");
+              positionCell.textContent = employee.position;
+
+              const phoneCell = document.createElement("td");
+              phoneCell.textContent = employee.phone;
+
+              const deleteCell = document.createElement("td");
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Xóa";
+              deleteButton.className = "delete-button";
+              deleteButton.addEventListener("click", function () {
+                if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
+                  fetch("/api/employees/" + employee._id, {
+                    method: "DELETE",
+                  }).then(() => {
+                    row.remove();
+                  });
+                }
+              });
+
+              deleteCell.appendChild(deleteButton);
+
+              row.appendChild(nameCell);
+              row.appendChild(positionCell);
+              row.appendChild(phoneCell);
+              row.appendChild(deleteCell);
+
+              tableBody.appendChild(row);
+            });
+
+            employeeList.style.display = "block";
+            resetButton.style.display = "inline-block";
+            searchBox.style.display = "inline-block";
+          });
+      });
+
+      resetButton.addEventListener("click", function () {
+        employeeList.style.display = "none";
+        resetButton.style.display = "none";
+        searchBox.style.display = "none";
+      });
+
+      searchNameButton.addEventListener("click", function () {
+        searchBy = "name";
+        searchBox.placeholder = "Tìm kiếm theo tên";
+      });
+
+      searchPhoneButton.addEventListener("click", function () {
+        searchBy = "phone";
+        searchBox.placeholder = "Tìm kiếm theo số điện thoại";
+      });
+
+      searchBox.addEventListener("input", function () {
+        const searchText = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll("#employee-table tbody tr");
+
+        rows.forEach((row) => {
+          const cell = row.querySelector(
+            searchBy === "name" ? "td:first-child" : "td:nth-child(3)"
+          );
+          if (cell) {
+            const cellText = cell.textContent.toLowerCase();
+            row.style.display = cellText.includes(searchText)
+              ? ""
+              : "none";
+          }
+        });
+      });
     });
   </script>
 </body>

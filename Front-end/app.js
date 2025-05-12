@@ -118,7 +118,7 @@ app.post('/api/employees', async (req, res) => {
     const response = await axios.post(`${EMPLOYEE_API_URL}/employees`, employeeData);
 
     const successMessage = 'Employee added successfully!';
-    const errorMessage = 'Phòng ban không tồn tại';
+    const errorMessage = 'Room not exist';
     const unexpectedMessage = 'Employee added successfully';
 
     // Kiểm tra thông báo từ backend
@@ -170,7 +170,7 @@ app.get('/api/department', (req, res) => {
     });
 });
 
-// Route cho trang chính, hiển thị form thêm phòng ban
+// Route cho trang chính
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Authentication.html'));
 });
